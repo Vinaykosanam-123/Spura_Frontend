@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { api } from "@/lib/api";
 
 interface CurriculumModule {
   id: string;
@@ -211,6 +212,41 @@ export default function Home() {
   const [activeModule, setActiveModule] = useState<string>("mod-1");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [demoStep, setDemoStep] = useState<number>(2);
+  const [primaryPriceLabel, setPrimaryPriceLabel] = useState<string>("");
+  const [primaryCourseHref, setPrimaryCourseHref] = useState<string>("/courses");
+  const [primaryCourseTitle, setPrimaryCourseTitle] = useState<string>("Complete Placement Preparation Batch 2.0");
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .catalog()
+      .then(async (res) => {
+        const list = Array.isArray(res) ? res : res?.courses ?? [];
+        const first = list[0];
+        if (!first || cancelled) return;
+        setPrimaryCourseHref(`/courses/${first.slug}`);
+        if (first.title) setPrimaryCourseTitle(first.title);
+        const detail = await api.courseDetail(first.slug).catch(() => null);
+        if (!detail || cancelled) return;
+        const minor =
+          detail.pricingPlans?.[0]?.amountMinor ??
+          detail.batches?.[0]?.tuitionAmountMinor ??
+          null;
+        if (typeof minor === "number" && minor > 0) {
+          setPrimaryPriceLabel(
+            new Intl.NumberFormat("en-IN", {
+              style: "currency",
+              currency: detail.pricingPlans?.[0]?.currency || detail.batches?.[0]?.currency || "INR",
+              maximumFractionDigits: 0,
+            }).format(minor / 100),
+          );
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const demoSteps = [
     {
@@ -277,7 +313,7 @@ export default function Home() {
           LIVE
         </span>
         <span>
-          Batch 2.0 Admissions Open: 100+ Live Classes • Telugu &amp; English • 2-Year Replay • Early Bird at ₹2,399
+          Batch 2.0 Admissions Open: 100+ Live Classes • Telugu &amp; English • 2-Year Replay{primaryPriceLabel ? ` • Starting at ${primaryPriceLabel}` : ""}
         </span>
         <a
           href="#batch-2"
@@ -383,7 +419,9 @@ export default function Home() {
               justifyContent: "center",
             }}
           >
-            <span style={{ color: "#34D399", fontWeight: 700 }}>✓ Early Bird Offer: ₹2,399</span>
+            <span style={{ color: "#34D399", fontWeight: 700 }}>
+              ✓ Admissions Open{primaryPriceLabel ? `: ${primaryPriceLabel}` : ""}
+            </span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
             <span style={{ color: "var(--text-secondary)", textDecoration: "line-through" }}>₹5,999 (60% Off)</span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
@@ -420,7 +458,7 @@ export default function Home() {
               }}
             >
               <span>🔥</span>
-              <span>Enroll in Batch 2.0 — ₹2,399</span>
+              <span>Enroll in Batch 2.0{primaryPriceLabel ? ` — ${primaryPriceLabel}` : ""}</span>
             </a>
 
             <Link
@@ -1115,7 +1153,7 @@ export default function Home() {
                       fontSize: "0.85rem",
                     }}
                   >
-                    Enroll in Batch 2.0 (₹2,399)
+                    Enroll in Batch 2.0{primaryPriceLabel ? ` (${primaryPriceLabel})` : ""}
                   </a>
                 </div>
               </div>
@@ -1189,7 +1227,7 @@ export default function Home() {
               letterSpacing: "0.05em",
             }}
           >
-            Early Bird Active
+            Admissions Open
           </div>
 
           <div className="responsive-grid-2col" style={{ alignItems: "center" }}>
@@ -1203,37 +1241,23 @@ export default function Home() {
                   letterSpacing: "0.05em",
                 }}
               >
-                Complete Placement Preparation Batch 2.0
+                {primaryCourseTitle}
               </span>
 
-              <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginTop: "0.5rem", marginBottom: "0.75rem" }}>
-                <span style={{ fontSize: "3.5rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.03em" }}>
-                  ₹2,399
-                </span>
-                <span style={{ fontSize: "1.25rem", color: "var(--text-muted)", textDecoration: "line-through" }}>
-                  ₹5,999
-                </span>
-                <span
-                  style={{
-                    fontSize: "0.85rem",
-                    fontWeight: 700,
-                    color: "#34D399",
-                    backgroundColor: "rgba(16, 185, 129, 0.15)",
-                    padding: "3px 8px",
-                    borderRadius: "4px",
-                  }}
-                >
-                  60% OFF
-                </span>
-              </div>
+              {primaryPriceLabel && (
+                <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginTop: "0.5rem", marginBottom: "0.75rem" }}>
+                  <span style={{ fontSize: "3.5rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.03em" }}>
+                    {primaryPriceLabel}
+                  </span>
+                </div>
+              )}
 
-              <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1.75rem", lineHeight: 1.5 }}>
-                Flexible monthly installment option available at <strong>₹749/month</strong>. One-time payment grants
-                immediate access to all live classes, recordings, problem sheets, and compiler tools.
+              <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1.75rem", lineHeight: 1.5, marginTop: "0.75rem" }}>
+                One-time enrollment grants immediate access to all live classes, 2-year HD recordings, the 480+ company problem sheet, contests, and visual compiler tools.
               </div>
 
               <Link
-                href="/courses"
+                href={primaryCourseHref}
                 className="glow-btn"
                 style={{
                   display: "flex",
@@ -1252,7 +1276,7 @@ export default function Home() {
                 }}
               >
                 <span>🔥</span>
-                <span>Enroll in Batch 2.0 Now — ₹2,399</span>
+                <span>Enroll Now{primaryPriceLabel ? ` — ${primaryPriceLabel}` : ""}</span>
               </Link>
 
               <div style={{ textAlign: "center", fontSize: "0.75rem", color: "var(--text-muted)" }}>

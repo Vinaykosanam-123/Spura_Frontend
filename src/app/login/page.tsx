@@ -176,39 +176,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Quick Demo Access for Internal Testing */}
-        <div className="mt-5 pt-4 border-t border-stone-200 dark:border-white/10">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:text-slate-500 mb-2">
-            One-Click Demo Sign In
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => {
-                setEmail('test.student@example.com');
-                setPassword('TestPassword123');
-                void performLogin('test.student@example.com', 'TestPassword123');
-              }}
-              className="px-3 py-2 rounded-xl text-xs font-semibold border border-stone-300 dark:border-white/10 text-stone-700 dark:text-slate-200 hover:border-amber-500/50 hover:text-amber-400 transition-colors"
-            >
-              Demo Student
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => {
-                setEmail('admin@spura.io');
-                setPassword('TestPassword123');
-                void performLogin('admin@spura.io', 'TestPassword123');
-              }}
-              className="px-3 py-2 rounded-xl text-xs font-semibold border border-stone-300 dark:border-white/10 text-stone-700 dark:text-slate-200 hover:border-amber-500/50 hover:text-amber-400 transition-colors"
-            >
-              Demo Admin / Studio
-            </button>
-          </div>
-        </div>
-
         {verifiedMsg && (
           <p
             className="mt-4 p-3 text-sm rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-medium"

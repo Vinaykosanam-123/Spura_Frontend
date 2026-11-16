@@ -50,67 +50,6 @@ interface Course {
   sections?: Section[];
 }
 
-const DEFAULT_COURSES: Course[] = [
-  {
-    id: "c1-dsa-mastery",
-    slug: "dsa-mastery",
-    title: "DSA & System Design Master Batch",
-    description: "Complete roadmap covering Arrays, Trees, Dynamic Programming and System Design with live practice.",
-    level: "beginner",
-    published: true,
-    sections: [
-      {
-        id: "s1",
-        courseId: "c1-dsa-mastery",
-        position: 1,
-        title: "Week 01 - Basics of Programming & Arrays",
-        published: true,
-        lectures: [
-          {
-            id: "l1",
-            sectionId: "s1",
-            position: 1,
-            title: "01. Array Memory Layout & Time Complexity",
-            videoUrl: "https://www.youtube.com/watch?v=pmN9ExVY3gQ",
-            notes: "Understanding contiguous memory, cache locality, and O(1) random access.",
-            durationMinutes: 45,
-            published: true,
-          },
-          {
-            id: "l2",
-            sectionId: "s1",
-            position: 2,
-            title: "02. Two Sum & Two Pointers Approach",
-            videoUrl: "https://www.youtube.com/watch?v=KLlXCFG5TnA",
-            notes: "Solving Two Sum using hash maps and sorted two pointers technique.",
-            durationMinutes: 50,
-            published: true,
-          },
-        ],
-      },
-      {
-        id: "s2",
-        courseId: "c1-dsa-mastery",
-        position: 2,
-        title: "Week 02 - Searching & Sorting Techniques",
-        published: true,
-        lectures: [
-          {
-            id: "l3",
-            sectionId: "s2",
-            position: 1,
-            title: "01. Binary Search Template & Edge Cases",
-            videoUrl: "https://www.youtube.com/watch?v=s4DPM8ct1pI",
-            notes: "Avoiding integer overflow with mid = left + (right - left) // 2.",
-            durationMinutes: 40,
-            published: true,
-          },
-        ],
-      },
-    ],
-  },
-];
-
 export default function StudioPage() {
   return (
     <Guard requireAdmin>
@@ -173,8 +112,8 @@ function StudioContent() {
               }
               setActiveCourseId(firstId);
             } else {
-              setCourses(DEFAULT_COURSES);
-              setActiveCourseId(DEFAULT_COURSES[0].id);
+              setCourses([]);
+              setActiveCourseId("");
             }
             setIsBackendConnected(true);
             setIsLoading(false);
@@ -182,37 +121,15 @@ function StudioContent() {
           }
         }
       } catch {
-        // fallback
+        // API unreachable
       }
-
-      const saved = localStorage.getItem("el_studio_courses");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed && parsed.length > 0) {
-            setCourses(parsed);
-            setActiveCourseId(parsed[0].id);
-            setIsLoading(false);
-            return;
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      setCourses(DEFAULT_COURSES);
-      setActiveCourseId(DEFAULT_COURSES[0].id);
+      setCourses([]);
+      setActiveCourseId("");
       setIsLoading(false);
     }
 
     loadData();
   }, []);
-
-  useEffect(() => {
-    if (courses.length > 0) {
-      localStorage.setItem("el_studio_courses", JSON.stringify(courses));
-    }
-  }, [courses]);
 
   const activeCourse = courses.find((c) => c.id === activeCourseId) || courses[0];
 

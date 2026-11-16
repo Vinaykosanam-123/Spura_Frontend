@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-ARG NEXT_PUBLIC_API_URL=https://spura-backend.onrender.com
+ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_DEV_BYPASS=false
 
@@ -15,7 +15,6 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV NEXT_PUBLIC_API_URL=https://spura-backend.onrender.com
 ENV NEXT_PUBLIC_DEV_BYPASS=false
 
 # Install G++ (C++20) and OpenJDK 21 so /api/compile works in /coding

@@ -74,7 +74,7 @@ export default async function Dashboard() {
         </h1>
         <p className="mt-2 text-[15px] leading-relaxed text-stone-600 dark:text-stone-400">
           {isDown
-            ? 'API at http://localhost:4000 is unreachable. Your layout still works — start the backend to see real data.'
+            ? 'SPURA API is temporarily unreachable. Please refresh in a moment.'
             : msg}
         </p>
         <div className="mt-6 flex gap-3 justify-center">
