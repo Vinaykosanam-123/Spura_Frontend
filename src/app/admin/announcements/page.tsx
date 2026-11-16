@@ -26,8 +26,18 @@ export default function AdminAnnouncements() {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    let active = true;
+    api.announcements()
+      .then(({ announcements }) => {
+        if (active) setList(announcements ?? []);
+      })
+      .catch(() => {
+        if (active) setList([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,10 +64,10 @@ export default function AdminAnnouncements() {
   return (
     <Guard requireAdmin>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Link href="/admin" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+        <Link href="/admin" className="text-sm text-stone-500 hover:text-stone-900 dark:hover:text-white">
           ← Studio
         </Link>
-        <h1 className="mt-2 text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">Announcements</h1>
+        <h1 className="mt-2 text-3xl font-bold text-stone-900 dark:text-stone-100 mb-6">Announcements</h1>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <AdminForm title="Publish announcement" error={error} ok={ok} busy={busy} submitLabel="Publish" onSubmit={create}>
             <Field label="Batch ID (optional — blank = all)" htmlFor="b">
@@ -70,16 +80,16 @@ export default function AdminAnnouncements() {
               <textarea id="bo" required value={body} onChange={(e) => setBody(e.target.value)} className={inputCls} rows={4} />
             </Field>
           </AdminForm>
-          <section className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-5 bg-white dark:bg-zinc-900 h-fit">
-            <h2 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Published</h2>
+          <section className="card-calm rounded-2xl p-6 h-fit">
+            <h2 className="font-semibold text-stone-900 dark:text-stone-100 mb-4">Published</h2>
             {list.length === 0 ? (
-              <p className="text-sm text-zinc-500">None visible.</p>
+              <p className="text-sm text-stone-500">None visible.</p>
             ) : (
               <ul className="space-y-3">
                 {list.map((a) => (
                   <li key={a.id} className="text-sm">
-                    <p className="font-medium text-zinc-900 dark:text-zinc-100">{a.title}</p>
-                    <p className="text-zinc-500 text-xs">{formatDate(a.publishedAt)}</p>
+                    <p className="font-medium text-stone-900 dark:text-stone-100">{a.title}</p>
+                    <p className="text-stone-500 text-xs">{formatDate(a.publishedAt)}</p>
                   </li>
                 ))}
               </ul>

@@ -5,14 +5,14 @@ import { useCallback, useEffect, useState } from "react";
 type Theme = "light" | "dark";
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "dark";
   const stored = window.localStorage.getItem("theme");
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "dark";
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
   /* eslint-disable react-hooks/set-state-in-effect -- theme must hydrate from localStorage on mount */
@@ -52,7 +52,7 @@ export default function ThemeToggle() {
         type="button"
         aria-label="Toggle theme"
         disabled
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-300 dark:border-zinc-700 text-zinc-500"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 dark:border-stone-800 text-stone-400"
       >
         <span className="h-4 w-4" />
       </button>
@@ -67,7 +67,7 @@ export default function ThemeToggle() {
       onClick={toggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 dark:border-white/10 bg-white dark:bg-[#0F1319] text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/10 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
     >
       {isDark ? (
         // Sun icon

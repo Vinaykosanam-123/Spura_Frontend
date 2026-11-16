@@ -2,14 +2,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
-import type { Course } from '@/lib/types';
+import type { Course, CurriculumEntry, CurriculumModule, CurriculumLesson } from '@/lib/types';
 import Guard from '@/components/Guard';
 import { AdminForm, Field, apiErr, inputCls } from '@/components/AdminForm';
 
 export default function AdminCurriculum() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [courseId, setCourseId] = useState('');
-  const [tree, setTree] = useState('');
+  const [tree, setTree] = useState<CurriculumEntry | null>(null);
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
 
@@ -37,15 +37,28 @@ export default function AdminCurriculum() {
     setError('');
     try {
       const data = await api.adminCurriculum(courseId);
-      setTree(JSON.stringify(data, null, 2));
+      setTree(data as CurriculumEntry);
     } catch (e: unknown) {
       setError(apiErr(e));
     }
   }, [courseId]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (!courseId) return;
+    let active = true;
+    api.adminCurriculum(courseId)
+      .then((data) => {
+        if (!active) return;
+        setError('');
+        setTree(data as CurriculumEntry);
+      })
+      .catch((e: unknown) => {
+        if (active) setError(apiErr(e));
+      });
+    return () => {
+      active = false;
+    };
+  }, [courseId]);
 
   const run = async (fn: () => Promise<unknown>, okMsg: string) => {
     setError('');
@@ -62,10 +75,10 @@ export default function AdminCurriculum() {
   return (
     <Guard requireAdmin>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Link href="/admin" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+        <Link href="/admin" className="text-sm text-stone-500 hover:text-stone-900 dark:hover:text-white">
           ← Studio
         </Link>
-        <h1 className="mt-2 text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">Curriculum</h1>
+        <h1 className="mt-2 text-3xl font-bold text-stone-900 dark:text-stone-100 mb-6">Curriculum</h1>
         <div className="mb-6 max-w-md">
           <Field label="Course" htmlFor="course">
             <select id="course" value={courseId} onChange={(e) => setCourseId(e.target.value)} className={inputCls}>
@@ -100,15 +113,15 @@ export default function AdminCurriculum() {
               <Field label="Type" htmlFor="ly">
                 <select id="ly" value={lType} onChange={(e) => setLType(e.target.value)} className={inputCls}>
                   <option value="video">video</option>
-                  <option value="reading">reading</option>
-                  <option value="quiz">quiz</option>
+                  <option value="article">article</option>
+                  <option value="live_session">live_session</option>
                 </select>
               </Field>
             </AdminForm>
 
             <AdminForm title="Publish lesson" submitLabel="Publish" onSubmit={(e) => { e.preventDefault(); run(() => api.publishLesson(lessonId), 'Lesson published'); }}>
               <Field label="Lesson ID" htmlFor="pl"><input id="pl" required value={lessonId} onChange={(e) => setLessonId(e.target.value)} className={inputCls} /></Field>
-              <p className="text-xs text-zinc-500">Module must be published first (else MODULE_NOT_PUBLISHED).</p>
+              <p className="text-xs text-stone-500">Module must be published first (else MODULE_NOT_PUBLISHED).</p>
             </AdminForm>
 
             <AdminForm title="Add resource" submitLabel="Add" onSubmit={(e) => { e.preventDefault(); run(() => api.createResource(lessonId, { sequence: +rSeq, title: rTitle, resourceUrl: rUrl, contentType: 'link' }), 'Resource added'); }}>
@@ -126,14 +139,56 @@ export default function AdminCurriculum() {
             </AdminForm>
           </div>
 
-          <section className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-5 bg-white dark:bg-zinc-900 h-fit">
+          <section className="card-calm rounded-2xl p-6 h-fit">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">Curriculum tree</h2>
+              <h2 className="font-semibold text-stone-900 dark:text-stone-100">
+                Curriculum tree (click item to select ID)
+              </h2>
               <button onClick={refresh} className="text-sm underline hover:no-underline">Refresh</button>
             </div>
-            <pre className="text-xs overflow-auto max-h-[600px] bg-zinc-50 dark:bg-zinc-800 rounded p-3 whitespace-pre-wrap">
-              {tree || 'Select a course to load its curriculum.'}
-            </pre>
+            {!tree ? (
+              <p className="text-sm text-stone-500">Select a course to load its curriculum.</p>
+            ) : (
+              <div className="max-h-[600px] overflow-auto">
+                <p className="text-sm font-medium text-stone-900 dark:text-stone-100 mb-3">{tree.course.title}</p>
+                {tree.modules.map((m: CurriculumModule) => (
+                  <div key={m.id} className="mb-4 border border-stone-100 dark:border-stone-800 rounded-lg p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setModuleId(m.id)}
+                        className="text-left text-sm font-semibold text-stone-800 dark:text-stone-200 hover:underline"
+                      >
+                        {m.sequence}. {m.title}
+                      </button>
+                      <span className="text-[11px] uppercase px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-500">
+                        {m.status ?? 'draft'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-stone-400 font-mono">{m.id}</p>
+                    <ul className="ml-4 mt-2 space-y-1.5">
+                      {m.lessons.map((l: CurriculumLesson) => (
+                        <li key={l.id} className="text-xs text-stone-600 dark:text-stone-400">
+                          <div className="flex items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setLessonId(l.id)}
+                              className="flex items-center gap-2 hover:underline text-left"
+                            >
+                              <span className={`inline-block h-1.5 w-1.5 rounded-xl ${l.status === 'published' ? 'bg-emerald-500' : 'bg-stone-300 dark:bg-stone-600'}`} />
+                              {l.sequence}. {l.title}
+                              <span className="text-stone-400 dark:text-stone-500">({l.type})</span>
+                            </button>
+                            <span className="text-[10px] uppercase text-stone-400">{l.status ?? 'draft'}</span>
+                          </div>
+                          <p className="ml-3.5 text-[10px] text-stone-400 font-mono">{l.id}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </main>

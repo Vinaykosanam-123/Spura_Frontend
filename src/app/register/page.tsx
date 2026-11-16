@@ -24,11 +24,14 @@ export default function RegisterPage() {
 
   return (
     <main className="flex-1 flex items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Create account</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+      <div className="w-full max-w-md card-calm rounded-2xl p-6 sm:p-8 dark:border-white/10">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/25 mb-3">
+          Join Batch 2.0
+        </span>
+        <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Create account</h1>
+        <p className="mt-1 text-sm text-stone-500 dark:text-slate-400">
           Already registered?{' '}
-          <Link href="/login" className="underline hover:no-underline">
+          <Link href="/login" className="text-amber-500 hover:text-amber-400 font-medium underline underline-offset-4">
             Log in
           </Link>
         </p>
@@ -40,7 +43,7 @@ export default function RegisterPage() {
             setBusy(true);
             try {
               await api.register(fullName, email, password);
-              r.push('/dashboard');
+              r.push('/my');
               r.refresh();
             } catch (e: unknown) {
               setErr(errMsg(e));
@@ -50,7 +53,7 @@ export default function RegisterPage() {
           }}
         >
           <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label htmlFor="fullName" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
               Full name
             </label>
             <input
@@ -61,11 +64,11 @@ export default function RegisterPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Your name"
-              className="mt-1 w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 w-full px-4 py-2.5 border border-stone-300 dark:border-white/10 rounded-xl bg-white dark:bg-[#090C10] text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label htmlFor="email" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
               Email
             </label>
             <input
@@ -76,11 +79,11 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="mt-1 w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 w-full px-4 py-2.5 border border-stone-300 dark:border-white/10 rounded-xl bg-white dark:bg-[#090C10] text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label htmlFor="password" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
               Password
             </label>
             <input
@@ -91,19 +94,19 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="mt-1 w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 w-full px-4 py-2.5 border border-stone-300 dark:border-white/10 rounded-xl bg-white dark:bg-[#090C10] text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
           <button
             type="submit"
             disabled={busy}
-            className="w-full h-11 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 font-medium hover:opacity-90 disabled:opacity-50"
+            className="w-full h-11 rounded-xl bg-amber-500 text-stone-950 font-semibold hover:bg-amber-400 transition-colors disabled:opacity-50"
           >
             {busy ? 'Creating…' : 'Register'}
           </button>
         </form>
         {err && (
-          <p className="mt-4 p-3 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400" role="alert">
+          <p className="mt-4 p-3 text-sm rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400" role="alert">
             {err}
           </p>
         )}

@@ -40,9 +40,25 @@ npm run lint
 
 ## Routes
 
-Public: `/`, `/catalog`, `/catalog/[slug]`, `/login`, `/register`.
-Student (login): `/dashboard`, `/curriculum`, `/lessons/[id]`, `/live`,
-`/recordings`, `/announcements`, `/progress`, `/questions/[id]`.
+Public: `/`, `/courses`, `/courses/[slug]`, `/visualize`, `/visualize/[slug]`, `/login`, `/register`.
+Student (login): `/my`, `/my/curriculum`, `/my/lessons/[id]`, `/my/courses`, `/my/live`,
+`/my/recordings`, `/my/announcements`, `/my/progress`, `/my/feedback`, `/my/questions/[id]`,
+`/practice`, `/practice/mock`, `/bank`, `/contests`.
 Admin: `/admin/*` (courses, batches, enrollments, curriculum, live, questions, announcements).
+
+## Visualizers
+
+Frontend-only interactive DSA labs under `/visualize`:
+
+- Sorting: bubble, selection, insertion, merge, quick (custom + random arrays).
+- Stack & queue: push/pop/enqueue/dequeue with an operation log.
+- Linked list: insert head/tail, delete, search with pointer rewinds.
+- Binary search tree: insert, search, inorder/preorder/postorder.
+- Graph: BFS/DFS on a fixed graph with selectable start node.
+
+Each lab has play/pause, step, speed, reset, pseudocode line highlighting, an explanation
+panel and live stats. Public visitors unlock 3 visualizers (tracked in
+`localStorage.ll_visualizer_trials_v1`); signed-in users get all of them. No backend calls are
+required to run a visualizer — move enforcement server-side once auth/enrollment is ready.
 
 Spec: `FRONTEND_BUILD_SPEC.md` (§0 has the real API shapes).

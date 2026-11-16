@@ -13,7 +13,7 @@ export function Field({
     <div>
       <label
         htmlFor={htmlFor}
-        className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+        className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1"
       >
         {label}
       </label>
@@ -23,7 +23,7 @@ export function Field({
 }
 
 export const inputCls =
-  'w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
+  'w-full px-3 py-2 border border-stone-300 dark:border-white/10 rounded-xl bg-white dark:bg-[#090C10] text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500';
 
 export function AdminForm({
   title,
@@ -43,14 +43,14 @@ export function AdminForm({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-5 bg-white dark:bg-zinc-900">
-      <h2 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{title}</h2>
+    <section className="border border-stone-200 dark:border-white/10 rounded-xl p-5 bg-white dark:bg-[#0F1319]">
+      <h2 className="font-semibold text-stone-900 dark:text-stone-100 mb-4">{title}</h2>
       <form onSubmit={onSubmit} className="space-y-3">
         {children}
         <button
           type="submit"
           disabled={busy}
-          className="h-10 px-5 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 font-medium text-sm disabled:opacity-50"
+          className="h-10 px-5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-semibold text-sm disabled:opacity-50 transition-colors"
         >
           {busy ? 'Working…' : submitLabel}
         </button>
