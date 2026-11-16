@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ARG NEXT_PUBLIC_API_URL=https://spura-backend.onrender.com
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_DEV_BYPASS=false
 
@@ -15,7 +15,11 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=4028
+ENV NEXT_PUBLIC_API_URL=https://spura-backend.onrender.com
+ENV NEXT_PUBLIC_DEV_BYPASS=false
+
+# Install G++ (C++20) and OpenJDK 21 so /api/compile works in /coding
+RUN apk add --no-cache g++ musl-dev openjdk21-jdk
 
 RUN addgroup -S spura && adduser -S spura -G spura
 
@@ -28,7 +32,4 @@ COPY --from=builder /app/next.config.ts ./next.config.ts
 USER spura
 EXPOSE 4028
 
-HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:4028/ || exit 1
-
-CMD ["npx", "next", "start", "-p", "4028"]
+CMD ["sh", "-c", "npx next start -p ${PORT:-4028}"]
