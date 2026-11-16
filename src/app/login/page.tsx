@@ -11,11 +11,15 @@ function errMsg(e: unknown): string {
   return e instanceof Error ? e.message : 'Login failed';
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function LoginPage() {
   const r = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPw, setShowPw] = useState(false);
   const [err, setErr] = useState('');
+  const [verifiedMsg, setVerifiedMsg] = useState('');
   const [busy, setBusy] = useState(false);
 
   const [showReset, setShowReset] = useState(false);
@@ -24,6 +28,51 @@ export default function LoginPage() {
   const [resetNewPw, setResetNewPw] = useState('');
   const [resetMsg, setResetMsg] = useState('');
   const [resetErr, setResetErr] = useState('');
+
+  const performLogin = async (targetEmail: string, targetPassword: string) => {
+    setErr('');
+    setVerifiedMsg('');
+    const cleanEmail = targetEmail.trim().toLowerCase();
+    if (!EMAIL_RE.test(cleanEmail)) {
+      setErr('Please enter a valid email address.');
+      return;
+    }
+    if (targetPassword.length < 6) {
+      setErr('Password must be at least 6 characters.');
+      return;
+    }
+
+    setBusy(true);
+    try {
+      await api.login(cleanEmail, targetPassword);
+      // Validate session & user identity with /api/v1/auth/me after sign-in
+      const verified = await api.me();
+      if (!verified?.user?.id) {
+        throw new Error('Session validation failed. Please ensure cookies are enabled.');
+      }
+      const roleLabel = verified.user.roles?.includes('admin')
+        ? 'Admin'
+        : verified.user.roles?.includes('mentor') || verified.user.roles?.includes('instructor')
+          ? 'Instructor'
+          : 'Student';
+      setVerifiedMsg(`Verified as ${verified.user.fullName} (${roleLabel}) — redirecting...`);
+
+      const nextParam =
+        typeof window !== 'undefined'
+          ? new URLSearchParams(window.location.search).get('next')
+          : null;
+      const destination =
+        nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+          ? nextParam
+          : '/my';
+      r.push(destination);
+      r.refresh();
+    } catch (e: unknown) {
+      setErr(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,46 +105,32 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex-1 flex items-center justify-center px-4 py-16">
+    <main className="flex-1 flex items-center justify-center px-4 py-12 sm:py-16">
       <div className="w-full max-w-md card-calm rounded-2xl p-6 sm:p-8 dark:border-white/10">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/25 mb-3">
           SPURA Portal
         </span>
-        <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Log in</h1>
+        <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Log in to SPURA</h1>
         <p className="mt-1 text-sm text-stone-500 dark:text-slate-400">
           No account yet?{' '}
-          <Link href="/register" className="text-amber-500 hover:text-amber-400 font-medium underline underline-offset-4">
-            Create an account
+          <Link
+            href="/register"
+            className="text-amber-500 hover:text-amber-400 font-semibold underline underline-offset-4"
+          >
+            Create a free account
           </Link>
         </p>
+
         <form
           className="mt-6 space-y-4"
           onSubmit={async (e) => {
             e.preventDefault();
-            setErr('');
-            setBusy(true);
-            try {
-              await api.login(email, password);
-              const nextParam =
-                typeof window !== 'undefined'
-                  ? new URLSearchParams(window.location.search).get('next')
-                  : null;
-              const destination =
-                nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
-                  ? nextParam
-                  : '/my';
-              r.push(destination);
-              r.refresh();
-            } catch (e: unknown) {
-              setErr(errMsg(e));
-            } finally {
-              setBusy(false);
-            }
+            await performLogin(email, password);
           }}
         >
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
-              Email
+              Email address
             </label>
             <input
               id="email"
@@ -109,12 +144,21 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
+                Password
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowPw((v) => !v)}
+                className="text-xs text-stone-500 hover:text-amber-400 transition-colors"
+              >
+                {showPw ? 'Hide' : 'Show'}
+              </button>
+            </div>
             <input
               id="password"
-              type="password"
+              type={showPw ? 'text' : 'password'}
               required
               autoComplete="current-password"
               value={password}
@@ -126,63 +170,107 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={busy}
-            className="w-full h-11 rounded-xl bg-amber-500 text-stone-950 font-semibold hover:bg-amber-400 transition-colors disabled:opacity-50"
+            className="w-full h-11 rounded-xl bg-amber-500 text-stone-950 font-bold hover:bg-amber-400 transition-colors disabled:opacity-50"
           >
-            {busy ? 'Logging in…' : 'Log in'}
+            {busy ? 'Signing in & verifying session…' : 'Log in'}
           </button>
         </form>
+
+        {/* Quick Demo Access for Internal Testing */}
+        <div className="mt-5 pt-4 border-t border-stone-200 dark:border-white/10">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:text-slate-500 mb-2">
+            One-Click Demo Sign In
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setEmail('test.student@example.com');
+                setPassword('TestPassword123');
+                void performLogin('test.student@example.com', 'TestPassword123');
+              }}
+              className="px-3 py-2 rounded-xl text-xs font-semibold border border-stone-300 dark:border-white/10 text-stone-700 dark:text-slate-200 hover:border-amber-500/50 hover:text-amber-400 transition-colors"
+            >
+              Demo Student
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setEmail('admin@spura.io');
+                setPassword('TestPassword123');
+                void performLogin('admin@spura.io', 'TestPassword123');
+              }}
+              className="px-3 py-2 rounded-xl text-xs font-semibold border border-stone-300 dark:border-white/10 text-stone-700 dark:text-slate-200 hover:border-amber-500/50 hover:text-amber-400 transition-colors"
+            >
+              Demo Admin / Studio
+            </button>
+          </div>
+        </div>
+
+        {verifiedMsg && (
+          <p
+            className="mt-4 p-3 text-sm rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-medium"
+            role="status"
+          >
+            ✓ {verifiedMsg}
+          </p>
+        )}
+
         {err && (
-          <p className="mt-4 p-3 text-sm rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400" role="alert">
+          <p
+            className="mt-4 p-3 text-sm rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400"
+            role="alert"
+          >
             {err}
           </p>
         )}
 
-        <div className="mt-6 border-t border-stone-200 dark:border-white/10 pt-4">
+        <div className="mt-6 pt-5 border-t border-stone-200 dark:border-white/10">
           <button
             type="button"
-            onClick={() => {
-              setShowReset((v) => !v);
-              if (!resetEmail) setResetEmail(email);
-            }}
-            className="text-xs font-medium text-stone-500 dark:text-slate-400 hover:text-amber-400 underline underline-offset-4"
+            onClick={() => setShowReset((v) => !v)}
+            className="text-xs font-medium text-stone-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400"
           >
-            {showReset ? 'Hide password reset' : 'Forgot your password?'}
+            {showReset ? 'Hide password recovery' : 'Forgot your password?'}
           </button>
 
           {showReset && (
-            <div className="mt-4 space-y-4 rounded-xl border border-stone-200 dark:border-white/10 p-4 bg-stone-50/70 dark:bg-[#090C10]">
-              <form onSubmit={handleRequestReset} className="space-y-2">
-                <label htmlFor="rst-email" className="block text-xs font-medium text-stone-600 dark:text-stone-300">
-                  Account email
-                </label>
+            <div className="mt-4 space-y-5">
+              <form onSubmit={handleRequestReset} className="space-y-3">
+                <p className="text-xs font-medium text-stone-600 dark:text-stone-400">
+                  Step 1: Request a password reset token
+                </p>
                 <div className="flex gap-2">
                   <input
-                    id="rst-email"
                     type="email"
                     required
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    className="flex-1 px-3 py-1.5 border border-stone-300 dark:border-white/10 rounded-lg bg-white dark:bg-[#0F1319] text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    placeholder={email || 'you@example.com'}
+                    className="flex-1 rounded-xl border border-stone-300 dark:border-white/10 bg-white dark:bg-[#090C10] px-3 py-2 text-xs text-stone-900 dark:text-stone-100"
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1.5 rounded-lg bg-amber-500 text-stone-950 hover:bg-amber-400 text-xs font-semibold"
+                    className="h-9 rounded-xl bg-stone-900 dark:bg-stone-100 px-3 text-xs font-medium text-white dark:text-stone-900"
                   >
-                    Send reset token
+                    Send token
                   </button>
                 </div>
               </form>
 
-              <form onSubmit={handleConfirmReset} className="space-y-2 pt-2 border-t border-stone-200 dark:border-white/10">
-                <p className="text-xs font-medium text-stone-600 dark:text-stone-300">
-                  Have a reset token?
+              <form onSubmit={handleConfirmReset} className="space-y-3">
+                <p className="text-xs font-medium text-stone-600 dark:text-stone-400">
+                  Step 2: Enter reset token and new password
                 </p>
                 <input
+                  type="text"
                   required
                   value={resetToken}
                   onChange={(e) => setResetToken(e.target.value)}
                   placeholder="Reset token"
-                  className="w-full px-3 py-1.5 border border-stone-300 dark:border-white/10 rounded-lg bg-white dark:bg-[#0F1319] text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full rounded-xl border border-stone-300 dark:border-white/10 bg-white dark:bg-[#090C10] px-3 py-2 text-xs text-stone-900 dark:text-stone-100"
                 />
                 <input
                   type="password"
@@ -190,19 +278,19 @@ export default function LoginPage() {
                   minLength={8}
                   value={resetNewPw}
                   onChange={(e) => setResetNewPw(e.target.value)}
-                  placeholder="New password (8+ chars, upper, lower, digit)"
-                  className="w-full px-3 py-1.5 border border-stone-300 dark:border-white/10 rounded-lg bg-white dark:bg-[#0F1319] text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="New password (min 8 chars)"
+                  className="w-full rounded-xl border border-stone-300 dark:border-white/10 bg-white dark:bg-[#090C10] px-3 py-2 text-xs text-stone-900 dark:text-stone-100"
                 />
                 <button
                   type="submit"
-                  className="w-full py-2 rounded-lg border border-stone-300 dark:border-white/10 hover:bg-white/5 text-xs font-medium"
+                  className="w-full h-9 rounded-xl bg-amber-500 text-stone-950 text-xs font-semibold hover:bg-amber-400"
                 >
-                  Confirm new password
+                  Confirm password reset
                 </button>
               </form>
 
-              {resetErr && <p className="text-xs text-red-500" role="alert">{resetErr}</p>}
-              {resetMsg && <p className="text-xs text-emerald-600 dark:text-emerald-400" role="status">{resetMsg}</p>}
+              {resetMsg && <p className="text-xs text-emerald-600 dark:text-emerald-400">{resetMsg}</p>}
+              {resetErr && <p className="text-xs text-red-600 dark:text-red-400">{resetErr}</p>}
             </div>
           )}
         </div>
