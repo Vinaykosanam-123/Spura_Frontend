@@ -301,7 +301,7 @@ export default function Home() {
       >
         <span
           style={{
-            backgroundColor: "#ef4444",
+            backgroundColor: "var(--accent-rose)",
             color: "#ffffff",
             padding: "2px 8px",
             borderRadius: "4px",
@@ -364,13 +364,13 @@ export default function Home() {
               gap: "0.5rem",
               fontSize: "0.8rem",
               fontWeight: 700,
-              color: "#FBBF24",
-              backgroundColor: "rgba(245, 158, 11, 0.12)",
+              color: "var(--accent-amber)",
+              backgroundColor: "var(--bg-surface-elevated)",
               padding: "6px 16px",
               borderRadius: "30px",
               marginBottom: "1.75rem",
-              border: "1px solid rgba(245, 158, 11, 0.3)",
-              boxShadow: "0 0 15px rgba(245, 158, 11, 0.2)",
+              border: "1px solid var(--border-strong)",
+              boxShadow: "var(--brand-glow)",
             }}
           >
             <span>✦</span>
@@ -451,13 +451,13 @@ export default function Home() {
                 alignItems: "center",
                 gap: "0.5rem",
                 padding: "0.95rem 2rem",
-                background: "linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)",
-                color: "#000000",
+                background: "var(--brand-gradient)",
+                color: "var(--brand-on-primary)",
                 borderRadius: "var(--radius-md)",
                 fontWeight: 700,
                 fontSize: "1.05rem",
                 letterSpacing: "-0.01em",
-                boxShadow: "0 4px 20px rgba(245, 158, 11, 0.45)",
+                boxShadow: "var(--brand-glow)",
               }}
             >
               <span>🔥</span>
@@ -525,7 +525,7 @@ export default function Home() {
             </div>
 
             <div>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#F59E0B", marginBottom: "0.2rem" }}>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--accent-amber)", marginBottom: "0.2rem" }}>
                 480+
               </div>
               <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
@@ -534,7 +534,7 @@ export default function Home() {
             </div>
 
             <div>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#34D399", marginBottom: "0.2rem" }}>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--accent-emerald)", marginBottom: "0.2rem" }}>
                 54+ Problems
               </div>
               <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
@@ -543,7 +543,7 @@ export default function Home() {
             </div>
 
             <div>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#FBBF24", marginBottom: "0.2rem" }}>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--accent-amber)", marginBottom: "0.2rem" }}>
                 2 Full Years
               </div>
               <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
@@ -826,7 +826,7 @@ export default function Home() {
                     style={{
                       padding: "0.5rem 1rem",
                       backgroundColor: "var(--brand-primary)",
-                      color: "#090C10",
+                      color: "var(--brand-on-primary)",
                       borderRadius: "var(--radius-sm)",
                       fontWeight: 700,
                       fontSize: "0.85rem",
@@ -863,10 +863,10 @@ export default function Home() {
             >
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
-                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#F59E0B", textTransform: "uppercase" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--accent-amber)", textTransform: "uppercase" }}>
                     {p.topic}
                   </span>
-                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#10B981" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--accent-emerald)" }}>
                     {p.difficulty}
                   </span>
                 </div>
@@ -1159,7 +1159,7 @@ export default function Home() {
                     style={{
                       padding: "0.6rem 1.25rem",
                       background: "var(--brand-gradient)",
-                      color: "#090C10",
+                      color: "var(--brand-on-primary)",
                       borderRadius: "var(--radius-sm)",
                       fontWeight: 700,
                       fontSize: "0.85rem",
@@ -1195,12 +1195,12 @@ export default function Home() {
               fontWeight: 700,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              color: "#FBBF24",
-              backgroundColor: "rgba(245, 158, 11, 0.1)",
+              color: "var(--accent-amber)",
+              backgroundColor: "var(--bg-surface-elevated)",
               padding: "4px 12px",
               borderRadius: "20px",
               marginBottom: "1rem",
-              border: "1px solid rgba(245, 158, 11, 0.3)",
+              border: "1px solid var(--border-strong)",
             }}
           >
             <span>★</span>
@@ -1218,8 +1218,8 @@ export default function Home() {
           style={{
             backgroundColor: "var(--bg-surface)",
             borderRadius: "var(--radius-lg)",
-            border: "2px solid rgba(245, 158, 11, 0.5)",
-            boxShadow: "0 0 40px rgba(245, 158, 11, 0.25)",
+            border: "2px solid var(--border-strong)",
+            boxShadow: "var(--shadow-elevated)",
             padding: "clamp(1.5rem, 4vw, 3rem)",
             position: "relative",
             overflow: "hidden",
@@ -1230,8 +1230,8 @@ export default function Home() {
               position: "absolute",
               top: "0",
               right: "0",
-              backgroundColor: "#F59E0B",
-              color: "#000000",
+              backgroundColor: "var(--brand-primary)",
+              color: "var(--brand-on-primary)",
               fontSize: "0.75rem",
               fontWeight: 800,
               padding: "6px 20px",
@@ -1279,12 +1279,12 @@ export default function Home() {
                   gap: "0.5rem",
                   width: "100%",
                   padding: "1rem",
-                  background: "linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)",
-                  color: "#090C10",
+                  background: "var(--brand-gradient)",
+                  color: "var(--brand-on-primary)",
                   borderRadius: "var(--radius-sm)",
                   fontWeight: 800,
                   fontSize: "1.08rem",
-                  boxShadow: "0 4px 20px rgba(245, 158, 11, 0.4)",
+                  boxShadow: "var(--brand-glow)",
                   marginBottom: "0.75rem",
                 }}
               >

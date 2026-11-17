@@ -4,44 +4,45 @@
 
 /* SPURA - Premium Carbon & Amber Gold Design System (Zero Blue/Violet AI Clutter) */
 :root {
-  --background: #FAF9F6;
-  --foreground: #1C1917;
-  --muted: #57534E;
+  --background: #FAFAFA;
+  --foreground: #09090B;
+  --muted: #52525B;
 
-  --bg-main: #FAF9F6;
-  --bg-canvas: #FAF9F6;
+  --bg-main: #FAFAFA;
+  --bg-canvas: #FAFAFA;
   --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #F5F5F4;
-  --bg-code: #F5F5F4;
+  --bg-surface-elevated: #F4F4F5;
+  --bg-code: #F4F4F5;
 
-  --border-subtle: rgba(28, 25, 23, 0.1);
-  --border-strong: rgba(28, 25, 23, 0.2);
-  --border-focus: #D97706;
+  --border-subtle: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.25);
+  --border-focus: #09090B;
 
-  --text-primary: #1C1917;
-  --text-secondary: #57534E;
-  --text-muted: #78716C;
+  --text-primary: #09090B;
+  --text-secondary: #3F3F46;
+  --text-muted: #52525B;
 
-  /* Brand Accents - Warm Amber Flame / LeetCode Gold */
-  --brand-primary: #F59E0B;
-  --brand-primary-hover: #D97706;
-  --brand-secondary: #EA580C;
-  --brand-gradient: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
-  --brand-glow: 0 0 22px rgba(245, 158, 11, 0.28);
+  /* Monochrome Black Light Theme (Zero Flashy Colors) */
+  --brand-primary: #09090B;
+  --brand-primary-hover: #000000;
+  --brand-secondary: #27272A;
+  --brand-gradient: linear-gradient(135deg, #18181B 0%, #09090B 100%);
+  --brand-on-primary: #FFFFFF;
+  --brand-glow: none;
 
-  /* Semantic Accents */
-  --accent-emerald: #10B981;
-  --accent-cyan: #0D9488;
-  --accent-teal: #0D9488;
-  --accent-amber: #D97706;
-  --accent-rose: #E11D48;
+  /* Monochrome Ink Accents in Light Mode */
+  --accent-emerald: #09090B;
+  --accent-cyan: #09090B;
+  --accent-teal: #09090B;
+  --accent-amber: #09090B;
+  --accent-rose: #09090B;
 
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
 
-  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
-  --shadow-elevated: 0 12px 36px -4px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 10px -2px rgba(0, 0, 0, 0.06);
+  --shadow-elevated: 0 10px 28px -4px rgba(0, 0, 0, 0.1);
 }
 
 .dark {
@@ -67,6 +68,14 @@
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
 
+  --brand-primary: #F59E0B;
+  --brand-primary-hover: #D97706;
+  --brand-secondary: #EA580C;
+  --brand-gradient: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
+  --brand-on-primary: #090C10;
+  --brand-glow: 0 0 22px rgba(245, 158, 11, 0.28);
+
+  --accent-emerald: #10B981;
   --accent-cyan: #2DD4BF;
   --accent-teal: #2DD4BF;
   --accent-amber: #F59E0B;
@@ -131,9 +140,9 @@ body {
   border-radius: 3px;
 }
 
-/* Typography Gradient Utilities - Gold / Amber Fire */
+/* Typography Gradient Utilities - Monochrome Black in Light Mode, Gold in Dark Mode */
 .gradient-text {
-  background: linear-gradient(135deg, #9A3412 0%, #D97706 50%, #EA580C 100%);
+  background: linear-gradient(135deg, #09090B 0%, #27272A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -145,7 +154,7 @@ body {
 }
 
 .gradient-text-emerald {
-  background: linear-gradient(135deg, #047857 0%, #10B981 100%);
+  background: linear-gradient(135deg, #09090B 0%, #27272A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -156,7 +165,7 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-/* Glowing Amber Button Animation */
+/* Glowing Amber Button Animation (Dark Mode Only) */
 @keyframes pulseGlowAmber {
   0%, 100% {
     box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
@@ -166,8 +175,27 @@ body {
   }
 }
 
-.glow-btn {
+.dark .glow-btn {
   animation: pulseGlowAmber 3s infinite ease-in-out;
+}
+
+html:not(.dark) .glow-btn {
+  animation: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14) !important;
+}
+
+html:not(.dark) ::selection {
+  background: #09090B;
+  color: #FFFFFF;
+}
+
+html:not(.dark) :focus-visible {
+  outline: 2px solid #09090B;
+}
+
+html:not(.dark) .editor-highlight-line {
+  background: rgba(0, 0, 0, 0.08) !important;
+  border-left: 3px solid #09090B !important;
 }
 
 /* Clean Cards */
@@ -184,7 +212,7 @@ body {
 
 .card-calm-hover:hover {
   transform: translateY(-2px);
-  border-color: rgba(245, 158, 11, 0.4);
+  border-color: var(--border-strong);
   box-shadow: var(--shadow-elevated);
 }
 
@@ -202,73 +230,170 @@ body {
 }
 
 .glass-card:hover {
-  border-color: rgba(245, 158, 11, 0.4);
+  border-color: var(--border-strong);
   box-shadow: var(--shadow-elevated);
 }
 
-/* Light-Mode Adaptation for Visualizer & Studio Surfaces */
+/* Strictly Monochrome Black-on-White Light Mode Overrides (Dark Mode Completely Unchanged) */
 html:not(.dark) .bg-\[\#090C10\],
 html:not(.dark) .bg-\[\#090C10\]\/60 {
   background-color: var(--bg-main) !important;
 }
 html:not(.dark) .bg-\[\#06080B\] {
-  background-color: #F5F5F4 !important;
+  background-color: #F4F4F5 !important;
 }
 html:not(.dark) .bg-\[\#080B11\],
 html:not(.dark) .bg-\[\#080B11\]\/90,
 html:not(.dark) .bg-\[\#080B11\]\/95 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
+  background-color: rgba(255, 255, 255, 0.96) !important;
 }
 html:not(.dark) .bg-\[\#0F1319\],
 html:not(.dark) .bg-\[\#0F1319\]\/60,
 html:not(.dark) .bg-\[\#0F1319\]\/90 {
   background-color: #FFFFFF !important;
 }
-html:not(.dark) .bg-\[\#161B24\] {
-  background-color: #F5F5F4 !important;
+html:not(.dark) .bg-\[\#161B24\],
+html:not(.dark) .bg-\[\#1C222D\] {
+  background-color: #F4F4F5 !important;
 }
 html:not(.dark) .bg-white\/5,
 html:not(.dark) .hover\:bg-white\/5:hover {
-  background-color: rgba(28, 25, 23, 0.04) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
 }
 html:not(.dark) .bg-white\/10,
 html:not(.dark) .hover\:bg-white\/10:hover {
-  background-color: rgba(28, 25, 23, 0.07) !important;
+  background-color: rgba(0, 0, 0, 0.08) !important;
 }
 html:not(.dark) .border-white\/5,
 html:not(.dark) .border-white\/10,
 html:not(.dark) .border-white\/15 {
-  border-color: rgba(28, 25, 23, 0.12) !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
 }
+
+/* Force all flashy/colored CTA buttons & gradients to crisp solid black + white ink in light mode */
+html:not(.dark) .bg-amber-400,
+html:not(.dark) .bg-amber-500,
+html:not(.dark) .bg-emerald-500,
+html:not(.dark) .bg-emerald-600,
+html:not(.dark) .bg-indigo-500,
+html:not(.dark) .bg-rose-500,
+html:not(.dark) .from-amber-400 {
+  background: #09090B !important;
+  background-color: #09090B !important;
+  background-image: none !important;
+  border-color: #09090B !important;
+  color: #FFFFFF !important;
+}
+html:not(.dark) .hover\:bg-amber-400:hover,
+html:not(.dark) .hover\:bg-amber-500:hover,
+html:not(.dark) .hover\:bg-emerald-400:hover {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+}
+html:not(.dark) .bg-amber-400 *,
+html:not(.dark) .bg-amber-500 *,
+html:not(.dark) .bg-emerald-500 *,
+html:not(.dark) .from-amber-400 * {
+  color: #FFFFFF !important;
+}
+
+/* Force all tinted badge/pill backgrounds to clean monochrome off-white with crisp black border */
+html:not(.dark) .bg-amber-500\/10,
+html:not(.dark) .bg-amber-500\/15,
+html:not(.dark) .bg-amber-500\/20,
+html:not(.dark) .bg-emerald-500\/10,
+html:not(.dark) .bg-emerald-500\/15,
+html:not(.dark) .bg-emerald-500\/20,
+html:not(.dark) .bg-teal-500\/15,
+html:not(.dark) .bg-cyan-500\/15,
+html:not(.dark) .bg-indigo-500\/15,
+html:not(.dark) .bg-rose-500\/15,
+html:not(.dark) .bg-amber-50,
+html:not(.dark) .bg-emerald-50,
+html:not(.dark) .bg-orange-50,
+html:not(.dark) .bg-teal-50,
+html:not(.dark) .bg-indigo-50,
+html:not(.dark) .bg-rose-50 {
+  background-color: #F4F4F5 !important;
+}
+
+html:not(.dark) .border-amber-500\/25,
+html:not(.dark) .border-amber-500\/30,
+html:not(.dark) .border-amber-500\/40,
+html:not(.dark) .border-emerald-500\/30,
+html:not(.dark) .border-teal-500\/30,
+html:not(.dark) .border-rose-500\/30,
+html:not(.dark) .border-indigo-500\/30,
+html:not(.dark) .border-amber-200,
+html:not(.dark) .border-emerald-200 {
+  border-color: rgba(0, 0, 0, 0.22) !important;
+}
+
+/* Force all flashy/colored text utilities to pure ink black in light mode */
 html:not(.dark) .text-slate-50,
 html:not(.dark) .text-slate-100,
 html:not(.dark) .text-slate-200,
-html:not(.dark) .hover\:text-white:hover {
-  color: #1C1917 !important;
-}
-html:not(.dark) .text-slate-300 {
-  color: #44403C !important;
-}
-html:not(.dark) .text-slate-400 {
-  color: #57534E !important;
-}
+html:not(.dark) .hover\:text-white:hover,
 html:not(.dark) .text-amber-200,
-html:not(.dark) .text-amber-300 {
-  color: #92400E !important;
-}
+html:not(.dark) .text-amber-300,
+html:not(.dark) .text-amber-400,
+html:not(.dark) .text-amber-500,
+html:not(.dark) .text-amber-600,
+html:not(.dark) .text-amber-700,
+html:not(.dark) .text-amber-800,
+html:not(.dark) .hover\:text-amber-300:hover,
+html:not(.dark) .hover\:text-amber-400:hover,
+html:not(.dark) .hover\:text-amber-500:hover,
+html:not(.dark) .text-orange-200,
+html:not(.dark) .text-orange-400,
+html:not(.dark) .text-orange-600,
+html:not(.dark) .text-emerald-200,
 html:not(.dark) .text-emerald-300,
-html:not(.dark) .text-emerald-400 {
-  color: #047857 !important;
+html:not(.dark) .text-emerald-400,
+html:not(.dark) .text-emerald-500,
+html:not(.dark) .text-emerald-600,
+html:not(.dark) .text-emerald-700,
+html:not(.dark) .text-emerald-800,
+html:not(.dark) .text-teal-200,
+html:not(.dark) .text-teal-300,
+html:not(.dark) .text-teal-400,
+html:not(.dark) .text-teal-600,
+html:not(.dark) .text-cyan-400,
+html:not(.dark) .text-cyan-600,
+html:not(.dark) .text-sky-400,
+html:not(.dark) .text-blue-400,
+html:not(.dark) .text-indigo-400,
+html:not(.dark) .text-violet-400,
+html:not(.dark) .text-rose-300,
+html:not(.dark) .text-rose-400,
+html:not(.dark) .text-rose-600 {
+  color: #09090B !important;
 }
-html:not(.dark) .shadow-black\/40 {
-  --tw-shadow-color: rgba(28, 25, 23, 0.08) !important;
+html:not(.dark) .text-slate-300,
+html:not(.dark) .text-stone-600 {
+  color: #27272A !important;
 }
-html:not(.dark) .fill-\[\#161B24\] {
-  fill: #F5F5F4 !important;
+html:not(.dark) .text-slate-400,
+html:not(.dark) .text-stone-500 {
+  color: #52525B !important;
+}
+
+html:not(.dark) .shadow-black\/40,
+html:not(.dark) .shadow-amber-500\/20,
+html:not(.dark) .shadow-amber-500\/25 {
+  --tw-shadow-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Monochrome SVG Diagram Fills in Light Mode */
+html:not(.dark) .fill-\[\#161B24\],
+html:not(.dark) .fill-emerald-950,
+html:not(.dark) .fill-orange-950 {
+  fill: #E4E4E7 !important;
 }
 html:not(.dark) .fill-slate-100,
 html:not(.dark) .fill-slate-200 {
-  fill: #1C1917 !important;
+  fill: #09090B !important;
 }
 
 /* Responsive Grids */

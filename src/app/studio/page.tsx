@@ -463,11 +463,11 @@ function StudioContent() {
           style={{
             padding: "0.6rem 1.25rem",
             background: "var(--brand-gradient)",
-            color: "#090C10",
+            color: "var(--brand-on-primary)",
             borderRadius: "var(--radius-sm)",
             fontSize: "0.875rem",
             fontWeight: 600,
-            boxShadow: "0 2px 8px rgba(245, 158, 11, 0.35)",
+            boxShadow: "var(--brand-glow)",
             cursor: "pointer",
           }}
         >
@@ -643,7 +643,7 @@ function StudioContent() {
                           fontWeight: 600,
                           borderRadius: "var(--radius-sm)",
                           backgroundColor: "var(--brand-primary)",
-                          color: "#090C10",
+                          color: "var(--brand-on-primary)",
                         }}
                       >
                         + Add Lecture
@@ -793,7 +793,7 @@ function StudioContent() {
                             style={{
                               padding: "5px 14px",
                               backgroundColor: "var(--brand-primary)",
-                              color: "#090C10",
+                              color: "var(--brand-on-primary)",
                               borderRadius: "var(--radius-sm)",
                               fontSize: "0.8rem",
                               fontWeight: 600,
@@ -855,7 +855,7 @@ function StudioContent() {
                           style={{
                             padding: "5px 14px",
                             backgroundColor: "var(--brand-primary)",
-                            color: "#090C10",
+                            color: "var(--brand-on-primary)",
                             borderRadius: "var(--radius-sm)",
                             fontSize: "0.8rem",
                             fontWeight: 600,
@@ -981,7 +981,7 @@ function StudioContent() {
                     style={{
                       padding: "6px 14px",
                       backgroundColor: "var(--brand-primary)",
-                      color: "#090C10",
+                      color: "var(--brand-on-primary)",
                       borderRadius: "var(--radius-sm)",
                       fontSize: "0.85rem",
                       fontWeight: 600,
@@ -1146,7 +1146,7 @@ function StudioContent() {
                   style={{
                     padding: "7px 18px",
                     background: "var(--brand-gradient)",
-                    color: "#090C10",
+                    color: "var(--brand-on-primary)",
                     borderRadius: "var(--radius-sm)",
                     fontSize: "0.85rem",
                     fontWeight: 700,

@@ -651,7 +651,7 @@ function CodingWorkspace({
                       padding: "1px 6px",
                       borderRadius: "8px",
                       backgroundColor: "var(--brand-primary)",
-                      color: "#090C10",
+                      color: "var(--brand-on-primary)",
                       fontWeight: 800,
                     }}
                   >
@@ -704,9 +704,9 @@ function CodingWorkspace({
                   display: "flex",
                   alignItems: "center",
                   gap: "0.45rem",
-                  backgroundColor: showProblemList ? "rgba(245, 158, 11, 0.14)" : "var(--bg-surface)",
+                  backgroundColor: showProblemList ? "var(--bg-surface-elevated)" : "var(--bg-surface)",
                   color: "var(--text-primary)",
-                  border: showProblemList ? "1px solid #F59E0B" : "1px solid var(--border-subtle)",
+                  border: showProblemList ? "1px solid var(--brand-primary)" : "1px solid var(--border-subtle)",
                   padding: "4px 10px",
                   borderRadius: "var(--radius-sm)",
                   fontSize: "0.75rem",
@@ -852,9 +852,9 @@ function CodingWorkspace({
                               type="button"
                               onClick={() => setDifficultyFilter(level)}
                               style={{
-                                backgroundColor: active ? "#F59E0B" : "var(--bg-surface-elevated)",
-                                color: active ? "#090C10" : "var(--text-primary)",
-                                border: active ? "1px solid #F59E0B" : "1px solid var(--border-subtle)",
+                                backgroundColor: active ? "var(--brand-primary)" : "var(--bg-surface-elevated)",
+                                color: active ? "var(--brand-on-primary)" : "var(--text-primary)",
+                                border: active ? "1px solid var(--brand-primary)" : "1px solid var(--border-subtle)",
                                 borderRadius: "9999px",
                                 padding: "2px 10px",
                                 fontSize: "0.72rem",
@@ -921,9 +921,9 @@ function CodingWorkspace({
                                 gap: "0.75rem",
                                 padding: "0.55rem 0.7rem",
                                 borderRadius: "6px",
-                                backgroundColor: isCurrent ? "rgba(245, 158, 11, 0.12)" : "transparent",
+                                backgroundColor: isCurrent ? "var(--bg-surface-elevated)" : "transparent",
                                 border: "none",
-                                borderLeft: isCurrent ? "2px solid #F59E0B" : "2px solid transparent",
+                                borderLeft: isCurrent ? "2px solid var(--brand-primary)" : "2px solid transparent",
                                 cursor: "pointer",
                               }}
                             >
@@ -1117,7 +1117,7 @@ function CodingWorkspace({
                     <div style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--text-primary)" }}>
                       {diagramNotice ? "Python 3 / JavaScript Diagram Tracer" : "Interactive Diagram Ready"}
                     </div>
-                    <p style={{ fontSize: "0.85rem", maxWidth: "360px", lineHeight: 1.55, color: diagramNotice ? "#FDE68A" : "var(--text-muted)" }}>
+                    <p style={{ fontSize: "0.85rem", maxWidth: "360px", lineHeight: 1.55, color: diagramNotice ? "var(--accent-amber)" : "var(--text-muted)" }}>
                       {diagramNotice ||
                         'Click "Animate Diagram" in the editor toolbar to run your solution and see the data structure animate step by step.'}
                     </p>
@@ -1133,7 +1133,7 @@ function CodingWorkspace({
                         style={{
                           padding: "0.5rem 1rem",
                           background: "var(--brand-gradient)",
-                          color: "#090C10",
+                          color: "var(--brand-on-primary)",
                           borderRadius: "var(--radius-sm)",
                           fontSize: "0.8rem",
                           fontWeight: 700,
@@ -1222,7 +1222,7 @@ function CodingWorkspace({
                       style={{
                         padding: "3px 12px",
                         backgroundColor: isPlaying ? "var(--accent-amber)" : "var(--brand-primary)",
-                        color: "#090C10",
+                        color: "var(--brand-on-primary)",
                         borderRadius: "4px",
                         fontSize: "0.75rem",
                         fontWeight: 700,
@@ -1291,8 +1291,9 @@ function CodingWorkspace({
                           borderRadius: "4px",
                           fontSize: "0.7rem",
                           fontWeight: 600,
-                          backgroundColor: playbackSpeed === opt.ms ? "rgba(245, 158, 11, 0.2)" : "transparent",
-                          color: playbackSpeed === opt.ms ? "#FBBF24" : "var(--text-muted)",
+                          backgroundColor: playbackSpeed === opt.ms ? "var(--bg-surface-elevated)" : "transparent",
+                          color: playbackSpeed === opt.ms ? "var(--brand-primary)" : "var(--text-muted)",
+                          border: playbackSpeed === opt.ms ? "1px solid var(--border-strong)" : "1px solid transparent",
                         }}
                       >
                         {opt.label}
@@ -1357,7 +1358,7 @@ function CodingWorkspace({
                           style={{
                             fontSize: "0.75rem",
                             fontWeight: 700,
-                            color: item.verdict === "Accepted" || item.verdict === "Finished" ? "#10B981" : "#F43F5E",
+                            color: item.verdict === "Accepted" || item.verdict === "Finished" ? "var(--accent-emerald)" : "var(--accent-rose)",
                           }}
                         >
                           {item.verdict}
@@ -1411,7 +1412,7 @@ function CodingWorkspace({
                               fontSize: "0.75rem",
                               fontWeight: 700,
                               textTransform: "capitalize",
-                              color: isAccepted ? "#10B981" : sub.status === "completed" ? "#F43F5E" : "#F59E0B",
+                              color: isAccepted ? "var(--accent-emerald)" : sub.status === "completed" ? "var(--accent-rose)" : "var(--accent-amber)",
                             }}
                           >
                             {verdictLabel}
@@ -1530,11 +1531,11 @@ function CodingWorkspace({
                 style={{
                   padding: "5px 14px",
                   background: "var(--brand-gradient)",
-                  color: "#090C10",
+                  color: "var(--brand-on-primary)",
                   borderRadius: "var(--radius-sm)",
                   fontSize: "0.8rem",
                   fontWeight: 700,
-                  boxShadow: "0 2px 8px rgba(245, 158, 11, 0.35)",
+                  boxShadow: "var(--brand-glow)",
                   cursor: "pointer",
                 }}
               >
