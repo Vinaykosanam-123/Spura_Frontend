@@ -92,10 +92,10 @@ export default function VisualizerStudio({
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-400">
             Interactive DSA Visualizers · {VISUALIZERS.length} Live Labs
           </div>
-          <h1 className="mt-2.5 text-[28px] font-bold tracking-tight text-white sm:text-[34px]">
+          <h1 className="mt-2.5 text-[28px] font-bold tracking-tight text-stone-900 dark:text-white sm:text-[34px]">
             Algorithm &amp; Data Structure Studio
           </h1>
-          <p className="mt-1 max-w-2xl text-[14px] text-slate-400">
+          <p className="mt-1 max-w-2xl text-[14px] text-stone-600 dark:text-slate-400">
             Switch across all {VISUALIZERS.length} visualizers right here—Sorting, Stacks, Linked Lists, BST, Graphs,
             Heaps, AVL Rotations, Tries, Recursion, DP Tables, and Hashing—step-by-step on one screen.
           </p>
@@ -104,13 +104,13 @@ export default function VisualizerStudio({
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/coding"
-            className="inline-flex h-9 items-center rounded-xl border border-amber-500/30 bg-amber-500/15 px-3.5 text-[13px] font-semibold text-amber-300 transition-colors hover:bg-amber-500 hover:text-stone-950"
+            className="inline-flex h-9 items-center rounded-xl border border-amber-500/30 bg-amber-500/15 px-3.5 text-[13px] font-semibold text-amber-600 dark:text-amber-300 transition-colors hover:bg-amber-500 hover:text-stone-950"
           >
             Open Code Compiler →
           </Link>
           <Link
             href="/bank"
-            className="inline-flex h-9 items-center rounded-xl border border-white/10 bg-[#0F1319] px-3.5 text-[13px] font-medium text-slate-200 transition-colors hover:border-amber-500/40 hover:text-white"
+            className="inline-flex h-9 items-center rounded-xl border border-white/10 bg-[#0F1319] px-3.5 text-[13px] font-medium text-slate-200 transition-colors hover:border-amber-500/40 hover:text-amber-500 dark:hover:text-white"
           >
             450+ Sheet
           </Link>
@@ -178,12 +178,12 @@ export default function VisualizerStudio({
               <div className="mt-2.5">
                 <div
                   className={`text-[13px] font-semibold leading-tight ${
-                    isSelected ? 'text-amber-300' : 'text-slate-100'
+                    isSelected ? 'text-amber-600 dark:text-amber-300' : 'text-stone-900 dark:text-slate-100'
                   }`}
                 >
                   {item.title}
                 </div>
-                <div className="mt-0.5 text-[11px] text-slate-400 truncate">{item.topic}</div>
+                <div className="mt-0.5 text-[11px] text-stone-500 dark:text-slate-400 truncate">{item.topic}</div>
               </div>
             </button>
           );
@@ -195,7 +195,7 @@ export default function VisualizerStudio({
         <div className="mb-5 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium">
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-amber-300">
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-amber-600 dark:text-amber-300">
                 {activeMeta.topic}
               </span>
               <span className="rounded-full border border-white/10 bg-[#161B24] px-2.5 py-0.5 text-slate-300">
@@ -205,10 +205,10 @@ export default function VisualizerStudio({
                 {activeMeta.duration}
               </span>
             </div>
-            <h2 className="mt-2 text-[22px] font-bold tracking-tight text-white">
+            <h2 className="mt-2 text-[22px] font-bold tracking-tight text-stone-900 dark:text-white">
               {activeMeta.title}
             </h2>
-            <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-slate-400">
+            <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-stone-600 dark:text-slate-400">
               {activeMeta.description}
             </p>
           </div>

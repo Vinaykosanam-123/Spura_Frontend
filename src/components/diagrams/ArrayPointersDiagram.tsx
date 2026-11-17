@@ -49,17 +49,17 @@ export function ArrayPointersDiagram({ arrays }: ArrayPointersDiagramProps) {
                 </span>
               </div>
 
-              <div style={{ display: "flex", gap: "2px", backgroundColor: "var(--bg-code)", padding: "2px", borderRadius: "4px" }}>
+              <div style={{ display: "flex", gap: "2px", backgroundColor: "var(--bg-code)", padding: "2px", borderRadius: "4px", border: "1px solid var(--border-subtle)" }}>
                 <button
                   onClick={() => setViewMode("boxes")}
                   style={{
                     padding: "2px 8px",
                     fontSize: "0.7rem",
-                    fontWeight: 500,
+                    fontWeight: 600,
                     borderRadius: "3px",
                     border: "none",
-                    backgroundColor: viewMode === "boxes" ? "rgba(255, 255, 255, 0.1)" : "transparent",
-                    color: viewMode === "boxes" ? "#fff" : "var(--text-muted)",
+                    backgroundColor: viewMode === "boxes" ? "var(--bg-surface)" : "transparent",
+                    color: viewMode === "boxes" ? "var(--text-primary)" : "var(--text-muted)",
                     cursor: "pointer",
                   }}
                 >
@@ -70,11 +70,11 @@ export function ArrayPointersDiagram({ arrays }: ArrayPointersDiagramProps) {
                   style={{
                     padding: "2px 8px",
                     fontSize: "0.7rem",
-                    fontWeight: 500,
+                    fontWeight: 600,
                     borderRadius: "3px",
                     border: "none",
-                    backgroundColor: viewMode === "bars" ? "rgba(255, 255, 255, 0.1)" : "transparent",
-                    color: viewMode === "bars" ? "#fff" : "var(--text-muted)",
+                    backgroundColor: viewMode === "bars" ? "var(--bg-surface)" : "transparent",
+                    color: viewMode === "bars" ? "var(--text-primary)" : "var(--text-muted)",
                     cursor: "pointer",
                   }}
                 >
@@ -216,7 +216,7 @@ export function ArrayPointersDiagram({ arrays }: ArrayPointersDiagramProps) {
                               ? "rgba(245, 158, 11, 0.2)"
                               : isInActiveRange
                               ? "var(--bg-surface)"
-                              : "rgba(9, 12, 16, 0.65)",
+                              : "var(--bg-surface-elevated)",
                             color: isInActiveRange ? "var(--text-primary)" : "var(--text-muted)",
                             border: isMid
                               ? "1.5px solid var(--accent-teal, #2DD4BF)"

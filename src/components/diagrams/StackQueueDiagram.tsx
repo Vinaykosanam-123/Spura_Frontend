@@ -54,7 +54,7 @@ export function StackQueueDiagram({ stacks }: StackQueueDiagramProps) {
                 borderRadius: "0 0 6px 6px",
                 padding: "4px",
                 gap: "3px",
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
+                backgroundColor: "var(--bg-surface-elevated)",
                 position: "relative",
               }}
             >

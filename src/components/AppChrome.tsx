@@ -57,7 +57,7 @@ function StudentShell({
     `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
       active
         ? 'bg-amber-500 text-stone-950 font-semibold'
-        : 'text-slate-300 hover:text-white hover:bg-white/5'
+        : 'text-stone-600 dark:text-slate-300 hover:text-stone-950 dark:hover:text-white hover:bg-stone-200/60 dark:hover:bg-white/5'
     }`;
   const isActive = (t: (typeof TABS)[number]) =>
     t.match.some((m) =>
@@ -70,32 +70,32 @@ function StudentShell({
     Boolean(user?.roles?.includes('mentor') || user?.roles?.includes('instructor'));
 
   return (
-    <div className="min-h-full flex flex-col bg-[#090C10] text-slate-50">
+    <div className="min-h-full flex flex-col bg-[#FAF9F6] dark:bg-[#090C10] text-stone-900 dark:text-slate-50">
       {/* Desktop top header */}
-      <header className="hidden md:block sticky top-0 z-50 border-b border-white/10 bg-[#080B11]/90 backdrop-blur-md">
+      <header className="hidden md:block sticky top-0 z-50 border-b border-stone-200 dark:border-white/10 bg-white/95 dark:bg-[#080B11]/90 backdrop-blur-md">
         <nav className="px-6 h-16 flex items-center gap-4" aria-label="Brand">
           <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label="SPURA home">
             <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-[13px] font-extrabold shadow-md shadow-amber-500/20">
               SP
             </span>
-            <span className="text-[16px] font-bold tracking-tight text-white">SPURA</span>
+            <span className="text-[16px] font-bold tracking-tight text-stone-900 dark:text-white">SPURA</span>
           </Link>
-          <div className="hidden lg:flex items-center gap-1 ml-4 pl-4 border-l border-white/10 text-xs font-medium">
+          <div className="hidden lg:flex items-center gap-1 ml-4 pl-4 border-l border-stone-200 dark:border-white/10 text-xs font-medium">
             <Link
               href="/courses"
-              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-stone-600 dark:text-slate-300 hover:text-stone-950 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5 transition-colors"
             >
               Roadmap
             </Link>
             <Link
               href="/coding"
-              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-white/5 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-stone-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors"
             >
               Coding Compiler
             </Link>
             <Link
               href="/visualize"
-              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-white/5 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-stone-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors"
             >
               11 Visualizers
             </Link>
@@ -103,8 +103,8 @@ function StudentShell({
               href="/bank"
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 pathname.startsWith('/bank')
-                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-semibold'
+                  : 'text-stone-600 dark:text-slate-300 hover:text-stone-950 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5'
               }`}
             >
               450+ Sheet
@@ -113,8 +113,8 @@ function StudentShell({
               href="/contests"
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 pathname.startsWith('/contests')
-                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-semibold'
+                  : 'text-stone-600 dark:text-slate-300 hover:text-stone-950 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5'
               }`}
             >
               Contests
@@ -123,22 +123,22 @@ function StudentShell({
           <div className="flex-1" />
           <ThemeToggle />
           {user ? (
-            <div className="flex items-center gap-2.5 ml-2 pl-2 border-l border-white/10">
+            <div className="flex items-center gap-2.5 ml-2 pl-2 border-l border-stone-200 dark:border-white/10">
               <div
-                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/10"
+                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-stone-100 dark:bg-white/[0.04] border border-stone-200 dark:border-white/10"
                 title={`Verified session: ${user.email}`}
               >
-                <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold">
+                <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px] font-bold">
                   {getInitials(user.fullName, user.email)}
                   <span
-                    className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-[#080B11]"
+                    className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 ring-2 ring-white dark:ring-[#080B11]"
                     title="Verified User"
                   />
                 </span>
-                <span className="text-xs font-medium text-slate-200 max-w-[130px] truncate">
+                <span className="text-xs font-medium text-stone-800 dark:text-slate-200 max-w-[130px] truncate">
                   {user.fullName || user.email}
                 </span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                   {getRoleBadge(user.roles)}
                 </span>
               </div>
@@ -148,7 +148,7 @@ function StudentShell({
             <div className="flex items-center gap-2 ml-2">
               <Link
                 href="/login"
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-200 hover:text-white border border-white/15 hover:bg-white/5 transition-colors"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-stone-700 dark:text-slate-200 hover:text-stone-950 dark:hover:text-white border border-stone-300 dark:border-white/15 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors"
               >
                 Log in
               </Link>
@@ -164,20 +164,20 @@ function StudentShell({
       </header>
       <div className="flex-1 md:flex min-h-0">
         {/* Mobile top bar */}
-        <header className="md:hidden sticky top-0 z-50 border-b border-white/10 bg-[#080B11]/90 backdrop-blur-md">
+        <header className="md:hidden sticky top-0 z-50 border-b border-stone-200 dark:border-white/10 bg-white/95 dark:bg-[#080B11]/90 backdrop-blur-md">
           <nav className="px-4 h-16 flex items-center" aria-label="Student">
             <Link href="/" className="flex items-center gap-2" aria-label="SPURA home">
               <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-[13px] font-extrabold">
                 SP
               </span>
-              <span className="font-bold text-white text-sm">SPURA</span>
+              <span className="font-bold text-stone-900 dark:text-white text-sm">SPURA</span>
             </Link>
             <div className="flex-1" />
             <ThemeToggle />
             <button
               onClick={() => setMenuOpen(true)}
               aria-label="Open menu"
-              className="ml-1 flex h-10 w-10 items-center justify-center rounded-xl text-slate-200 hover:bg-white/10 text-xl"
+              className="ml-1 flex h-10 w-10 items-center justify-center rounded-xl text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/10 text-xl"
             >
               ☰
             </button>
@@ -186,7 +186,7 @@ function StudentShell({
         {menuOpen && (
           <div className="md:hidden fixed inset-0 z-[60]" role="dialog" aria-label="Menu">
             <div className="absolute inset-0 bg-black/60" onClick={() => setMenuOpen(false)} />
-            <div className="absolute left-0 top-0 bottom-0 w-64 bg-[#0F1319] border-r border-white/10 p-4 flex flex-col gap-1 overflow-y-auto">
+            <div className="absolute left-0 top-0 bottom-0 w-64 bg-white dark:bg-[#0F1319] border-r border-stone-200 dark:border-white/10 p-4 flex flex-col gap-1 overflow-y-auto">
               <div className="flex items-center justify-between px-2 py-2 mb-1">
                 <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-[13px] font-extrabold">
                   SP
@@ -194,15 +194,15 @@ function StudentShell({
                 <button
                   onClick={() => setMenuOpen(false)}
                   aria-label="Close menu"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-300 hover:bg-white/10 text-xl"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-white/10 text-xl"
                 >
                   ✕
                 </button>
               </div>
               {user && (
-                <div className="mb-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10">
-                  <p className="text-xs font-semibold text-white truncate">{user.fullName}</p>
-                  <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
+                <div className="mb-2 px-3 py-2 rounded-xl bg-stone-100 dark:bg-white/[0.04] border border-stone-200 dark:border-white/10">
+                  <p className="text-xs font-semibold text-stone-900 dark:text-white truncate">{user.fullName}</p>
+                  <p className="text-[11px] text-stone-500 dark:text-slate-400 truncate">{user.email}</p>
                 </div>
               )}
               {TABS.map((t) => (
@@ -216,7 +216,7 @@ function StudentShell({
                   {t.label}
                 </Link>
               ))}
-              <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-1">
+              <div className="mt-3 pt-3 border-t border-stone-200 dark:border-white/10 flex flex-col gap-1">
                 <Link href="/coding" onClick={() => setMenuOpen(false)} className={linkCls(false)}>
                   Coding Compiler
                 </Link>
@@ -243,7 +243,7 @@ function StudentShell({
                     <Link
                       href="/login"
                       onClick={() => setMenuOpen(false)}
-                      className="w-full py-2 text-center rounded-xl text-xs font-semibold border border-white/15 text-white"
+                      className="w-full py-2 text-center rounded-xl text-xs font-semibold border border-stone-300 dark:border-white/15 text-stone-900 dark:text-white"
                     >
                       Log in
                     </Link>
@@ -261,7 +261,7 @@ function StudentShell({
           </div>
         )}
         {/* Desktop left sidebar */}
-        <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-white/10 bg-[#0F1319]/90 sticky top-16 h-[calc(100vh-4rem)] p-4 gap-1 overflow-y-auto">
+        <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-stone-200 dark:border-white/10 bg-white dark:bg-[#0F1319]/90 sticky top-16 h-[calc(100vh-4rem)] p-4 gap-1 overflow-y-auto">
           <nav className="flex flex-col gap-1" aria-label="Student">
             {TABS.map((t) => (
               <Link
@@ -274,8 +274,8 @@ function StudentShell({
               </Link>
             ))}
           </nav>
-          <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-1">
-            <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          <div className="mt-4 pt-4 border-t border-stone-200 dark:border-white/10 flex flex-col gap-1">
+            <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-slate-500">
               Interactive Labs
             </p>
             <Link href="/coding" className={linkCls(false)}>
@@ -320,7 +320,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
     Boolean(user?.roles?.includes('mentor') || user?.roles?.includes('instructor'));
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080B11]/95 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-stone-200 dark:border-white/10 bg-white/95 dark:bg-[#080B11]/95 backdrop-blur-md">
       <nav
         className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2"
         aria-label="Main"
@@ -329,9 +329,9 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
           <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-[13px] font-extrabold shadow-md shadow-amber-500/20">
             SP
           </span>
-          <span className="text-[16px] sm:text-[17px] font-bold tracking-tight text-white flex items-center gap-1.5">
+          <span className="text-[16px] sm:text-[17px] font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-1.5">
             SPURA
-            <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
               Batch 2.0
             </span>
           </span>
@@ -347,8 +347,8 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
                 aria-current={active ? 'page' : undefined}
                 className={`${item.cls} px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5 border border-transparent'
+                    ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-semibold'
+                    : 'text-stone-600 dark:text-slate-300 hover:text-stone-950 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5 border border-transparent'
                 }`}
               >
                 {item.label}
@@ -362,7 +362,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
               {isStaff && (
                 <Link
                   href="/studio"
-                  className="hidden lg:inline-flex h-9 items-center px-3 rounded-xl text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-colors"
+                  className="hidden lg:inline-flex h-9 items-center px-3 rounded-xl text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-colors"
                 >
                   Studio
                 </Link>
@@ -370,11 +370,11 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
               <Link
                 href="/my"
                 title={`Signed in as ${user.fullName} (${user.email})`}
-                className="inline-flex h-9 items-center gap-1.5 px-2.5 sm:px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/15 text-xs font-semibold text-white transition-colors"
+                className="inline-flex h-9 items-center gap-1.5 px-2.5 sm:px-3 rounded-xl bg-stone-100 dark:bg-white/[0.06] hover:bg-stone-200/80 dark:hover:bg-white/[0.1] border border-stone-200 dark:border-white/15 text-xs font-semibold text-stone-900 dark:text-white transition-colors"
               >
                 <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-stone-950 text-[10px] font-extrabold">
                   {getInitials(user.fullName, user.email)}
-                  <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-[#080B11]" />
+                  <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 ring-2 ring-white dark:ring-[#080B11]" />
                 </span>
                 <span className="hidden sm:inline max-w-[100px] truncate">
                   {user.fullName || 'My Space'}
@@ -388,7 +388,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
             <div className="flex items-center gap-1.5 ml-1">
               <Link
                 href="/login"
-                className="inline-flex h-9 items-center px-2.5 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-200 hover:text-white border border-white/15 hover:bg-white/5 transition-colors"
+                className="inline-flex h-9 items-center px-2.5 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold text-stone-700 dark:text-slate-200 hover:text-stone-950 dark:hover:text-white border border-stone-300 dark:border-white/15 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors"
               >
                 Log in
               </Link>
@@ -406,7 +406,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
             type="button"
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open navigation menu"
-            className="lg:hidden ml-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-slate-200 hover:bg-white/10 text-lg"
+            className="lg:hidden ml-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 dark:border-white/10 text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/10 text-lg"
           >
             ☰
           </button>
@@ -418,68 +418,68 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-[70]" role="dialog" aria-label="Navigation menu">
           <div className="fixed inset-0 bg-black/70" onClick={() => setMobileMenuOpen(false)} />
-          <div className="fixed right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-[#0F1319] border-l border-white/10 p-4 flex flex-col gap-1.5 overflow-y-auto shadow-2xl">
-            <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/10">
+          <div className="fixed right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white dark:bg-[#0F1319] border-l border-stone-200 dark:border-white/10 p-4 flex flex-col gap-1.5 overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between pb-3 mb-2 border-b border-stone-200 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-xs font-extrabold">
                   SP
                 </span>
-                <span className="font-bold text-white text-sm">SPURA Navigation</span>
+                <span className="font-bold text-stone-900 dark:text-white text-sm">SPURA Navigation</span>
               </div>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Close navigation menu"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 hover:bg-white/10"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-white/10"
               >
                 ✕
               </button>
             </div>
 
             {user && (
-              <div className="mb-2 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10">
+              <div className="mb-2 px-3 py-2.5 rounded-xl bg-stone-100 dark:bg-white/[0.04] border border-stone-200 dark:border-white/10">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold text-white truncate">{user.fullName}</p>
-                  <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  <p className="text-xs font-semibold text-stone-900 dark:text-white truncate">{user.fullName}</p>
+                  <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                     {getRoleBadge(user.roles)}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 truncate mt-0.5">{user.email}</p>
+                <p className="text-[11px] text-stone-500 dark:text-slate-400 truncate mt-0.5">{user.email}</p>
               </div>
             )}
 
             <Link
               href="/courses"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/5"
             >
               Course Roadmap
             </Link>
             <Link
               href="/coding"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/5"
             >
               Coding Compiler &amp; Tracer
             </Link>
             <Link
               href="/visualize"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/5"
             >
               11 Interactive Visualizers
             </Link>
             <Link
               href="/bank"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/5"
             >
               450+ Company Problem Sheet
             </Link>
             <Link
               href="/contests"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/5"
             >
               Live Contests Arena
             </Link>
@@ -488,7 +488,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
               <Link
                 href="/my"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/25"
+                className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25"
               >
                 My Study Space →
               </Link>
@@ -497,7 +497,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
               <Link
                 href="/studio"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+                className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/5"
               >
                 Course Studio
               </Link>
@@ -506,14 +506,14 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
               <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+                className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/5"
               >
                 Admin Console
               </Link>
             )}
 
             <div className="flex-1" />
-            <div className="pt-3 mt-3 border-t border-white/10">
+            <div className="pt-3 mt-3 border-t border-stone-200 dark:border-white/10">
               {user ? (
                 <LogoutButton />
               ) : (
@@ -521,7 +521,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
                   <Link
                     href="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="py-2.5 text-center rounded-xl text-xs font-semibold border border-white/15 text-white hover:bg-white/5"
+                    className="py-2.5 text-center rounded-xl text-xs font-semibold border border-stone-300 dark:border-white/15 text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-white/5"
                   >
                     Log in
                   </Link>
@@ -544,7 +544,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-stone-800/80 bg-[#080B11] py-12 text-stone-400">
+    <footer className="border-t border-stone-200 dark:border-stone-800/80 bg-stone-100 dark:bg-[#080B11] py-12 text-stone-600 dark:text-stone-400">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div>
@@ -552,82 +552,82 @@ function SiteFooter() {
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-xs font-extrabold">
                 SP
               </span>
-              <span className="font-bold text-white text-base">SPURA</span>
+              <span className="font-bold text-stone-900 dark:text-white text-base">SPURA</span>
             </div>
-            <p className="text-xs leading-relaxed text-stone-400">
+            <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
               India&apos;s first visual algorithmic learning platform. Placement bootcamp in Telugu
               &amp; English with live classes and diagrammatic compiler.
             </p>
           </div>
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-300 mb-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-300 mb-3">
               Platform
             </h4>
             <div className="flex flex-col gap-2 text-xs">
-              <Link href="/login" className="hover:text-white">
+              <Link href="/login" className="hover:text-stone-950 dark:hover:text-white">
                 Student Login
               </Link>
-              <Link href="/register" className="hover:text-white">
+              <Link href="/register" className="hover:text-stone-950 dark:hover:text-white">
                 Create Account (Sign Up)
               </Link>
-              <Link href="/courses" className="hover:text-white">
+              <Link href="/courses" className="hover:text-stone-950 dark:hover:text-white">
                 16-Week Curriculum
               </Link>
-              <Link href="/visualize" className="hover:text-white">
+              <Link href="/visualize" className="hover:text-stone-950 dark:hover:text-white">
                 Interactive Visualizer
               </Link>
-              <Link href="/bank" className="hover:text-white">
+              <Link href="/bank" className="hover:text-stone-950 dark:hover:text-white">
                 450+ Problem Sheet
               </Link>
             </div>
           </div>
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-300 mb-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-300 mb-3">
               Visualizers
             </h4>
             <div className="flex flex-col gap-2 text-xs">
-              <Link href="/visualize?tab=sorting" className="hover:text-white">
+              <Link href="/visualize?tab=sorting" className="hover:text-stone-950 dark:hover:text-white">
                 Sorting &amp; Arrays
               </Link>
-              <Link href="/visualize?tab=linked-list" className="hover:text-white">
+              <Link href="/visualize?tab=linked-list" className="hover:text-stone-950 dark:hover:text-white">
                 Linked List Inversion
               </Link>
-              <Link href="/visualize?tab=bst" className="hover:text-white">
+              <Link href="/visualize?tab=bst" className="hover:text-stone-950 dark:hover:text-white">
                 Binary Search Tree
               </Link>
-              <Link href="/visualize?tab=stack" className="hover:text-white">
+              <Link href="/visualize?tab=stack" className="hover:text-stone-950 dark:hover:text-white">
                 Stack &amp; Queue LIFO
               </Link>
-              <Link href="/visualize?tab=graph" className="hover:text-white">
+              <Link href="/visualize?tab=graph" className="hover:text-stone-950 dark:hover:text-white">
                 Graph BFS/DFS
               </Link>
             </div>
           </div>
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-300 mb-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-300 mb-3">
               Studio &amp; Admin
             </h4>
             <div className="flex flex-col gap-2 text-xs">
-              <Link href="/studio" className="text-amber-400 hover:text-amber-300 font-semibold">
+              <Link href="/studio" className="text-amber-700 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 font-semibold">
                 Course Studio (Instructor Access) →
               </Link>
-              <Link href="/admin" className="hover:text-white">
+              <Link href="/admin" className="hover:text-stone-950 dark:hover:text-white">
                 Admin Console →
               </Link>
               <span className="text-stone-500">Student Support: info@spura.io</span>
             </div>
           </div>
         </div>
-        <div className="pt-6 border-t border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
+        <div className="pt-6 border-t border-stone-200 dark:border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
           <p>© 2026 SPURA. All rights reserved. Crafted for engineers.</p>
           <div className="flex gap-4">
-            <Link href="/#batch-2" className="hover:text-stone-300">
+            <Link href="/#batch-2" className="hover:text-stone-900 dark:hover:text-stone-300">
               Privacy Policy
             </Link>
-            <Link href="/#batch-2" className="hover:text-stone-300">
+            <Link href="/#batch-2" className="hover:text-stone-900 dark:hover:text-stone-300">
               Terms of Service
             </Link>
-            <Link href="/#batch-2" className="hover:text-stone-300">
+            <Link href="/#batch-2" className="hover:text-stone-900 dark:hover:text-stone-300">
               Refund Policy
             </Link>
           </div>

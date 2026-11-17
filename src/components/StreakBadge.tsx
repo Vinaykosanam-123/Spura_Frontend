@@ -43,7 +43,7 @@ export default function StreakBadge() {
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-sm font-medium text-amber-300"
+      className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-300"
       title="Consecutive days you opened your dashboard"
       aria-label={`${streak} day streak`}
     >

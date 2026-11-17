@@ -132,7 +132,7 @@ export function LinkedListDiagram({ lists }: LinkedListDiagramProps) {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          backgroundColor: "rgba(0, 0, 0, 0.2)",
+                          backgroundColor: "var(--bg-surface-elevated)",
                         }}
                       >
                         <span

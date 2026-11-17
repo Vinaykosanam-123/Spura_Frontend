@@ -83,7 +83,7 @@ export function BinaryTreeDiagram({ trees }: BinaryTreeDiagramProps) {
                     y1={l.y1}
                     x2={l.x2}
                     y2={l.y2}
-                    stroke="#334155"
+                    stroke="var(--border-strong)"
                     strokeWidth="2"
                     strokeLinecap="round"
                   />
@@ -99,15 +99,15 @@ export function BinaryTreeDiagram({ trees }: BinaryTreeDiagramProps) {
 
                       <circle
                         r="18"
-                        fill={hasPointers ? "#D97706" : "#181C24"}
-                        stroke={hasPointers ? "#FBBF24" : "#3F4756"}
+                        fill={hasPointers ? "#D97706" : "var(--bg-surface)"}
+                        stroke={hasPointers ? "#FBBF24" : "var(--border-strong)"}
                         strokeWidth="1.5"
                       />
 
                       <text
                         textAnchor="middle"
                         dy="4"
-                        fill="#F8FAFC"
+                        fill={hasPointers ? "#FFFFFF" : "var(--text-primary)"}
                         fontSize="12"
                         fontFamily="monospace"
                         fontWeight="600"

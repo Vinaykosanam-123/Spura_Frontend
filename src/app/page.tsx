@@ -285,13 +285,13 @@ export default function Home() {
       {/* 1. TOP MARQUEE BANNER */}
       <div
         style={{
-          backgroundColor: "rgba(245, 158, 11, 0.12)",
-          borderBottom: "1px solid rgba(245, 158, 11, 0.25)",
+          backgroundColor: "rgba(245, 158, 11, 0.14)",
+          borderBottom: "1px solid rgba(245, 158, 11, 0.3)",
           padding: "0.6rem 1rem",
           textAlign: "center",
           fontSize: "0.82rem",
           fontWeight: 600,
-          color: "#FDE68A",
+          color: "var(--text-primary)",
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
@@ -319,7 +319,7 @@ export default function Home() {
         <a
           href="#batch-2"
           style={{
-            color: "#ffffff",
+            color: "var(--accent-amber)",
             textDecoration: "underline",
             fontWeight: 700,
             marginLeft: "0.25rem",
@@ -384,7 +384,7 @@ export default function Home() {
               letterSpacing: "-0.035em",
               lineHeight: 1.15,
               marginBottom: "1.5rem",
-              color: "#ffffff",
+              color: "var(--text-primary)",
               maxWidth: "960px",
               margin: "0 auto 1.5rem",
             }}
@@ -414,7 +414,7 @@ export default function Home() {
               gap: "0.85rem",
               padding: "8px 18px",
               borderRadius: "8px",
-              backgroundColor: "rgba(15, 19, 25, 0.88)",
+              backgroundColor: "var(--bg-surface)",
               border: "1px solid var(--border-strong)",
               marginBottom: "2.5rem",
               fontSize: "0.9rem",
@@ -422,13 +422,13 @@ export default function Home() {
               justifyContent: "center",
             }}
           >
-            <span style={{ color: "#34D399", fontWeight: 700 }}>
+            <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>
               ✓ Admissions Open{primaryPriceLabel ? `: ${primaryPriceLabel}` : ""}
             </span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
-            <span style={{ color: "var(--text-secondary)", textDecoration: "line-through" }}>₹5,999 (60% Off)</span>
+            <span style={{ color: "var(--text-secondary)" }}>Live Classes + Compiler</span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
-            <span style={{ color: "#FBBF24", fontWeight: 600 }}>Flexible ₹749/mo</span>
+            <span style={{ color: "var(--accent-amber)", fontWeight: 600 }}>480+ Company Questions</span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
             <span style={{ color: "var(--text-secondary)" }}>2-Year Replay Access</span>
           </div>
@@ -472,7 +472,7 @@ export default function Home() {
                 gap: "0.5rem",
                 padding: "0.95rem 1.75rem",
                 backgroundColor: "var(--bg-surface)",
-                color: "#ffffff",
+                color: "var(--text-primary)",
                 borderRadius: "var(--radius-md)",
                 fontWeight: 600,
                 fontSize: "1.05rem",
@@ -509,14 +509,14 @@ export default function Home() {
               gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
               gap: "1.25rem",
               padding: "clamp(1.1rem, 3vw, 1.75rem)",
-              backgroundColor: "rgba(15, 19, 25, 0.85)",
+              backgroundColor: "var(--bg-surface)",
               borderRadius: "var(--radius-lg)",
               border: "1px solid var(--border-subtle)",
-              backdropFilter: "blur(10px)",
+              boxShadow: "var(--shadow-card)",
             }}
           >
             <div>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#ffffff", marginBottom: "0.2rem" }}>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.2rem" }}>
                 5,000+
               </div>
               <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
@@ -602,7 +602,7 @@ export default function Home() {
               alignItems: "center",
               gap: "0.65rem",
               padding: "0.75rem 1rem",
-              backgroundColor: "rgba(9, 12, 16, 0.85)",
+              backgroundColor: "var(--bg-surface-elevated)",
               borderBottom: "1px solid var(--border-subtle)",
             }}
           >
@@ -624,7 +624,8 @@ export default function Home() {
                 style={{
                   padding: "4px 10px",
                   fontSize: "0.75rem",
-                  backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border-subtle)",
                   color: demoStep === 1 ? "var(--text-muted)" : "var(--text-primary)",
                   borderRadius: "4px",
                   fontWeight: 600,
@@ -641,7 +642,8 @@ export default function Home() {
                 style={{
                   padding: "4px 10px",
                   fontSize: "0.75rem",
-                  backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border-subtle)",
                   color: demoStep === 3 ? "var(--text-muted)" : "var(--text-primary)",
                   borderRadius: "4px",
                   fontWeight: 600,
@@ -661,36 +663,36 @@ export default function Home() {
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
                 fontSize: "0.8rem",
                 lineHeight: 1.7,
-                color: "#e2e8f0",
+                color: "var(--text-primary)",
                 overflowX: "auto",
                 minWidth: 0,
               }}
             >
-              <div style={{ color: "#64748b", marginBottom: "0.5rem" }}>{"// Two Pointers on Sorted Array"}</div>
-              <div><span style={{ color: "#f43f5e" }}>def</span> <span style={{ color: "#FBBF24" }}>twoSum</span>(nums, target):</div>
-              <div style={{ paddingLeft: "1.25rem", color: demoStep === 1 ? "#FBBF24" : "#e2e8f0", backgroundColor: demoStep === 1 ? "rgba(245, 158, 11, 0.15)" : "transparent" }}>
+              <div style={{ color: "var(--text-muted)", marginBottom: "0.5rem" }}>{"// Two Pointers on Sorted Array"}</div>
+              <div><span style={{ color: "var(--accent-rose)" }}>def</span> <span style={{ color: "var(--accent-amber)" }}>twoSum</span>(nums, target):</div>
+              <div style={{ paddingLeft: "1.25rem", color: demoStep === 1 ? "var(--accent-amber)" : "var(--text-primary)", backgroundColor: demoStep === 1 ? "rgba(245, 158, 11, 0.15)" : "transparent" }}>
                 left, right = 0, len(nums) - 1
               </div>
               <div style={{ paddingLeft: "1.25rem" }}>
-                <span style={{ color: "#f43f5e" }}>while</span> left &lt; right:
+                <span style={{ color: "var(--accent-rose)" }}>while</span> left &lt; right:
               </div>
               <div style={{ paddingLeft: "2.5rem" }}>
                 curr_sum = nums[left] + nums[right]
               </div>
-              <div style={{ paddingLeft: "2.5rem", color: demoStep === 3 ? "#34D399" : "#e2e8f0", backgroundColor: demoStep === 3 ? "rgba(16, 185, 129, 0.15)" : "transparent" }}>
-                <span style={{ color: "#f43f5e" }}>if</span> curr_sum == target:
+              <div style={{ paddingLeft: "2.5rem", color: demoStep === 3 ? "var(--accent-emerald)" : "var(--text-primary)", backgroundColor: demoStep === 3 ? "rgba(16, 185, 129, 0.15)" : "transparent" }}>
+                <span style={{ color: "var(--accent-rose)" }}>if</span> curr_sum == target:
               </div>
-              <div style={{ paddingLeft: "3.75rem", color: demoStep === 3 ? "#34D399" : "#e2e8f0" }}>
-                <span style={{ color: "#f43f5e" }}>return</span> [left, right]
+              <div style={{ paddingLeft: "3.75rem", color: demoStep === 3 ? "var(--accent-emerald)" : "var(--text-primary)" }}>
+                <span style={{ color: "var(--accent-rose)" }}>return</span> [left, right]
               </div>
-              <div style={{ paddingLeft: "2.5rem", color: demoStep < 3 ? "#FBBF24" : "#e2e8f0", backgroundColor: demoStep < 3 ? "rgba(245, 158, 11, 0.1)" : "transparent" }}>
-                <span style={{ color: "#f43f5e" }}>elif</span> curr_sum &gt; target:
+              <div style={{ paddingLeft: "2.5rem", color: demoStep < 3 ? "var(--accent-amber)" : "var(--text-primary)", backgroundColor: demoStep < 3 ? "rgba(245, 158, 11, 0.1)" : "transparent" }}>
+                <span style={{ color: "var(--accent-rose)" }}>elif</span> curr_sum &gt; target:
               </div>
               <div style={{ paddingLeft: "3.75rem" }}>
                 right -= 1
               </div>
               <div style={{ paddingLeft: "2.5rem" }}>
-                <span style={{ color: "#f43f5e" }}>else</span>:
+                <span style={{ color: "var(--accent-rose)" }}>else</span>:
               </div>
               <div style={{ paddingLeft: "3.75rem" }}>
                 left += 1
@@ -699,7 +701,7 @@ export default function Home() {
 
             <div
               style={{
-                backgroundColor: "rgba(15, 19, 25, 0.85)",
+                backgroundColor: "var(--bg-surface)",
                 padding: "1.5rem",
                 display: "flex",
                 flexDirection: "column",
@@ -738,8 +740,8 @@ export default function Home() {
                           }}
                         >
                           <div style={{ height: "20px", fontSize: "0.75rem", fontWeight: 700 }}>
-                            {isLeft && <span style={{ color: "#2DD4BF" }}>left ↓</span>}
-                            {isRight && <span style={{ color: "#F43F5E" }}>right ↓</span>}
+                            {isLeft && <span style={{ color: "var(--accent-cyan)" }}>left ↓</span>}
+                            {isRight && <span style={{ color: "var(--accent-rose)" }}>right ↓</span>}
                           </div>
 
                           <div
@@ -753,20 +755,20 @@ export default function Home() {
                               fontWeight: 700,
                               borderRadius: "8px",
                               backgroundColor: isMatched
-                                ? "rgba(16, 185, 129, 0.25)"
+                                ? "rgba(16, 185, 129, 0.2)"
                                 : isLeft || isRight
-                                ? "rgba(245, 158, 11, 0.25)"
-                                : "rgba(255, 255, 255, 0.05)",
+                                ? "rgba(245, 158, 11, 0.2)"
+                                : "var(--bg-surface-elevated)",
                               border: `2px solid ${
                                 isMatched
-                                  ? "#10B981"
+                                  ? "var(--accent-emerald)"
                                   : isLeft
-                                  ? "#2DD4BF"
+                                  ? "var(--accent-cyan)"
                                   : isRight
-                                  ? "#F43F5E"
+                                  ? "var(--accent-rose)"
                                   : "var(--border-subtle)"
                               }`,
-                              color: isMatched ? "#34D399" : "#ffffff",
+                              color: isMatched ? "var(--accent-emerald)" : "var(--text-primary)",
                               transition: "all 0.2s ease",
                             }}
                           >
@@ -786,15 +788,15 @@ export default function Home() {
                   style={{
                     padding: "1rem",
                     borderRadius: "8px",
-                    backgroundColor: "rgba(0, 0, 0, 0.3)",
+                    backgroundColor: "var(--bg-surface-elevated)",
                     border: "1px solid var(--border-subtle)",
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.3rem" }}>
                     <span style={{ color: "var(--text-secondary)" }}>Current Sum:</span>
-                    <span style={{ fontWeight: 700, color: "#ffffff" }}>{currentDemo.sum}</span>
+                    <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>{currentDemo.sum}</span>
                   </div>
-                  <div style={{ fontSize: "0.85rem", color: demoStep === 3 ? "#34D399" : "#FBBF24", fontWeight: 600 }}>
+                  <div style={{ fontSize: "0.85rem", color: demoStep === 3 ? "var(--accent-emerald)" : "var(--accent-amber)", fontWeight: 600 }}>
                     Verdict: {currentDemo.status}
                   </div>
                 </div>
@@ -809,9 +811,9 @@ export default function Home() {
                     href="/visualize"
                     style={{
                       padding: "0.5rem 0.9rem",
-                      backgroundColor: "rgba(255, 255, 255, 0.06)",
+                      backgroundColor: "var(--bg-surface-elevated)",
                       border: "1px solid var(--border-subtle)",
-                      color: "#ffffff",
+                      color: "var(--text-primary)",
                       borderRadius: "var(--radius-sm)",
                       fontWeight: 600,
                       fontSize: "0.82rem",
@@ -868,14 +870,14 @@ export default function Home() {
                     {p.difficulty}
                   </span>
                 </div>
-                <div style={{ fontSize: "1rem", fontWeight: 700, color: "#F8FAFC" }}>{p.title}</div>
+                <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)" }}>{p.title}</div>
                 <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
                   {p.diagramLabel}
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem", color: "var(--text-muted)" }}>
                 <span>{p.companies.slice(0, 3).join(" • ")}</span>
-                <span style={{ color: "#FBBF24", fontWeight: 700 }}>Trace →</span>
+                <span style={{ color: "var(--accent-amber)", fontWeight: 700 }}>Trace →</span>
               </div>
             </Link>
           ))}
@@ -923,7 +925,7 @@ export default function Home() {
         >
           <div className="glass-card" style={{ padding: "1.75rem" }}>
             <div style={{ fontSize: "1.8rem", marginBottom: "0.85rem" }}>🗣️</div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "#ffffff" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
               Telugu &amp; English Intuition
             </h3>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.6 }}>
@@ -934,7 +936,7 @@ export default function Home() {
 
           <div className="glass-card" style={{ padding: "1.75rem" }}>
             <div style={{ fontSize: "1.8rem", marginBottom: "0.85rem" }}>📹</div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "#ffffff" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
               Interactive Live Classes + Zoho Meeting
             </h3>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.6 }}>
@@ -945,7 +947,7 @@ export default function Home() {
 
           <div className="glass-card" style={{ padding: "1.75rem" }}>
             <div style={{ fontSize: "1.8rem", marginBottom: "0.85rem" }}>⚡</div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "#ffffff" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
               In-Browser Visualizer Compiler
             </h3>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.6 }}>
@@ -956,7 +958,7 @@ export default function Home() {
 
           <div className="glass-card" style={{ padding: "1.75rem" }}>
             <div style={{ fontSize: "1.8rem", marginBottom: "0.85rem" }}>♾️</div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "#ffffff" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
               2-Year Full Replay Access
             </h3>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.6 }}>
@@ -967,7 +969,7 @@ export default function Home() {
 
           <div className="glass-card" style={{ padding: "1.75rem" }}>
             <div style={{ fontSize: "1.8rem", marginBottom: "0.85rem" }}>🤝</div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "#ffffff" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
               Dedicated 1-on-1 TA Doubt Support
             </h3>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.6 }}>
@@ -978,7 +980,7 @@ export default function Home() {
 
           <div className="glass-card" style={{ padding: "1.75rem" }}>
             <div style={{ fontSize: "1.8rem", marginBottom: "0.85rem" }}>💼</div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "#ffffff" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
               System Design &amp; Mock Interviews
             </h3>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.6 }}>
@@ -1046,7 +1048,7 @@ export default function Home() {
                       {m.weeks}
                     </span>
                   </div>
-                  <div style={{ fontSize: "0.95rem", fontWeight: 700, color: isSelected ? "#ffffff" : "var(--text-primary)" }}>
+                  <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)" }}>
                     {m.title}
                   </div>
                 </div>
@@ -1074,7 +1076,7 @@ export default function Home() {
                         fontSize: "0.75rem",
                         fontWeight: 700,
                         backgroundColor: "rgba(245, 158, 11, 0.2)",
-                        color: "#F59E0B",
+                        color: "var(--accent-amber)",
                         padding: "3px 10px",
                         borderRadius: "4px",
                       }}
@@ -1087,7 +1089,7 @@ export default function Home() {
                           fontSize: "0.75rem",
                           fontWeight: 700,
                           backgroundColor: "rgba(16, 185, 129, 0.2)",
-                          color: "#34D399",
+                          color: "var(--accent-emerald)",
                           padding: "3px 10px",
                           borderRadius: "4px",
                         }}
@@ -1098,12 +1100,12 @@ export default function Home() {
                   </div>
 
                   <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                    <span style={{ color: "#ffffff", fontWeight: 700 }}>{current.lectures}</span> Lectures •{" "}
-                    <span style={{ color: "#ffffff", fontWeight: 700 }}>{current.problems}</span> Problems
+                    <span style={{ color: "var(--text-primary)", fontWeight: 700 }}>{current.lectures}</span> Lectures •{" "}
+                    <span style={{ color: "var(--text-primary)", fontWeight: 700 }}>{current.problems}</span> Problems
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: "clamp(1.2rem, 3vw, 1.45rem)", fontWeight: 800, marginBottom: "0.75rem", color: "#ffffff" }}>
+                <h3 style={{ fontSize: "clamp(1.2rem, 3vw, 1.45rem)", fontWeight: 800, marginBottom: "0.75rem", color: "var(--text-primary)" }}>
                   {current.title}
                 </h3>
 
@@ -1125,7 +1127,7 @@ export default function Home() {
                           alignItems: "flex-start",
                           gap: "0.6rem",
                           fontSize: "0.9rem",
-                          color: "#cbd5e1",
+                          color: "var(--text-secondary)",
                           lineHeight: 1.5,
                         }}
                       >
@@ -1141,9 +1143,9 @@ export default function Home() {
                     href="/courses"
                     style={{
                       padding: "0.6rem 1.25rem",
-                      backgroundColor: "rgba(255, 255, 255, 0.08)",
+                      backgroundColor: "var(--bg-surface-elevated)",
                       border: "1px solid var(--border-subtle)",
-                      color: "#ffffff",
+                      color: "var(--text-primary)",
                       borderRadius: "var(--radius-sm)",
                       fontWeight: 600,
                       fontSize: "0.85rem",
@@ -1257,7 +1259,7 @@ export default function Home() {
 
               {primaryPriceLabel && (
                 <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginTop: "0.5rem", marginBottom: "0.75rem" }}>
-                  <span style={{ fontSize: "3.5rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.03em" }}>
+                  <span style={{ fontSize: "clamp(2.4rem, 5vw, 3.5rem)", fontWeight: 900, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>
                     {primaryPriceLabel}
                   </span>
                 </div>
@@ -1297,47 +1299,47 @@ export default function Home() {
 
             <div
               style={{
-                backgroundColor: "rgba(9, 12, 16, 0.82)",
+                backgroundColor: "var(--bg-surface-elevated)",
                 padding: "1.75rem",
                 borderRadius: "var(--radius-md)",
                 border: "1px solid var(--border-subtle)",
               }}
             >
-              <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#ffffff", marginBottom: "1rem" }}>
+              <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
                 What&apos;s Included in Batch 2.0:
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem", fontSize: "0.85rem", color: "#cbd5e1" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>✓</span>
                   <span>100+ Hours Live Interactive Classes (Telugu &amp; English)</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>✓</span>
                   <span>2 Full Years Unlimited 1080p HD Recording Replay</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>✓</span>
                   <span>450+ Curated SDE Placement Questions (Blind 75 &amp; Striver)</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>✓</span>
                   <span>In-Browser Compiler with Real-Time Diagram Visualizer</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>✓</span>
                   <span>Dedicated 1-on-1 TA Doubt Support on Discord</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>✓</span>
                   <span>Object-Oriented Design (LLD) &amp; System Architecture (HLD)</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>✓</span>
                   <span>Resume Roasting &amp; FAANG-Style Mock Interviews</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>✓</span>
                   <span>Official SPURA Course Certificate</span>
                 </div>
               </div>
@@ -1349,8 +1351,9 @@ export default function Home() {
       {/* 7. FAQS */}
       <section
         style={{
-          padding: "4.5rem 1.5rem",
+          padding: "clamp(2.5rem, 6vw, 4.5rem) 1rem",
           maxWidth: "900px",
+          width: "100%",
           margin: "0 auto",
           borderTop: "1px solid var(--border-subtle)",
         }}
@@ -1368,7 +1371,7 @@ export default function Home() {
           >
             Got Questions?
           </div>
-          <h2 style={{ fontSize: "2.3rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
+          <h2 style={{ fontSize: "clamp(1.65rem, 4vw, 2.3rem)", fontWeight: 800, letterSpacing: "-0.02em" }}>
             Frequently Asked Questions
           </h2>
         </div>
@@ -1397,7 +1400,7 @@ export default function Home() {
                     cursor: "pointer",
                     fontWeight: 700,
                     fontSize: "1.05rem",
-                    color: isOpen ? "#ffffff" : "var(--text-primary)",
+                    color: "var(--text-primary)",
                   }}
                 >
                   <span>{faq.question}</span>

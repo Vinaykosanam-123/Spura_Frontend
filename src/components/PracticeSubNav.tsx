@@ -22,7 +22,7 @@ export default function PracticeSubNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? 'page' : undefined}
-            className={`px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${active ? 'bg-amber-500 text-stone-950 font-semibold border-amber-500' : 'border-white/10 bg-[#0F1319] text-slate-300 hover:border-amber-500/40 hover:text-white'}`}
+            className={`px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${active ? 'bg-amber-500 text-stone-950 font-semibold border-amber-500' : 'border-stone-200 dark:border-white/10 bg-white dark:bg-[#0F1319] text-stone-700 dark:text-slate-300 hover:border-amber-500/40 hover:text-stone-950 dark:hover:text-white'}`}
           >
             {item.label}
           </Link>

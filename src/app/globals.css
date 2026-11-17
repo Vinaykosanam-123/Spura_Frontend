@@ -133,12 +133,24 @@ body {
 
 /* Typography Gradient Utilities - Gold / Amber Fire */
 .gradient-text {
+  background: linear-gradient(135deg, #9A3412 0%, #D97706 50%, #EA580C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark .gradient-text {
   background: linear-gradient(135deg, #FFFFFF 0%, #FBBF24 50%, #F97316 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-text-emerald {
+  background: linear-gradient(135deg, #047857 0%, #10B981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark .gradient-text-emerald {
   background: linear-gradient(135deg, #6EE7B7 0%, #10B981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -163,7 +175,7 @@ body {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-card);
 }
 
 .card-calm-hover {
@@ -173,7 +185,7 @@ body {
 .card-calm-hover:hover {
   transform: translateY(-2px);
   border-color: rgba(245, 158, 11, 0.4);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-elevated);
 }
 
 .editor-highlight-line {
@@ -185,12 +197,78 @@ body {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .glass-card:hover {
   border-color: rgba(245, 158, 11, 0.4);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Light-Mode Adaptation for Visualizer & Studio Surfaces */
+html:not(.dark) .bg-\[\#090C10\],
+html:not(.dark) .bg-\[\#090C10\]\/60 {
+  background-color: var(--bg-main) !important;
+}
+html:not(.dark) .bg-\[\#06080B\] {
+  background-color: #F5F5F4 !important;
+}
+html:not(.dark) .bg-\[\#080B11\],
+html:not(.dark) .bg-\[\#080B11\]\/90,
+html:not(.dark) .bg-\[\#080B11\]\/95 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+html:not(.dark) .bg-\[\#0F1319\],
+html:not(.dark) .bg-\[\#0F1319\]\/60,
+html:not(.dark) .bg-\[\#0F1319\]\/90 {
+  background-color: #FFFFFF !important;
+}
+html:not(.dark) .bg-\[\#161B24\] {
+  background-color: #F5F5F4 !important;
+}
+html:not(.dark) .bg-white\/5,
+html:not(.dark) .hover\:bg-white\/5:hover {
+  background-color: rgba(28, 25, 23, 0.04) !important;
+}
+html:not(.dark) .bg-white\/10,
+html:not(.dark) .hover\:bg-white\/10:hover {
+  background-color: rgba(28, 25, 23, 0.07) !important;
+}
+html:not(.dark) .border-white\/5,
+html:not(.dark) .border-white\/10,
+html:not(.dark) .border-white\/15 {
+  border-color: rgba(28, 25, 23, 0.12) !important;
+}
+html:not(.dark) .text-slate-50,
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200,
+html:not(.dark) .hover\:text-white:hover {
+  color: #1C1917 !important;
+}
+html:not(.dark) .text-slate-300 {
+  color: #44403C !important;
+}
+html:not(.dark) .text-slate-400 {
+  color: #57534E !important;
+}
+html:not(.dark) .text-amber-200,
+html:not(.dark) .text-amber-300 {
+  color: #92400E !important;
+}
+html:not(.dark) .text-emerald-300,
+html:not(.dark) .text-emerald-400 {
+  color: #047857 !important;
+}
+html:not(.dark) .shadow-black\/40 {
+  --tw-shadow-color: rgba(28, 25, 23, 0.08) !important;
+}
+html:not(.dark) .fill-\[\#161B24\] {
+  fill: #F5F5F4 !important;
+}
+html:not(.dark) .fill-slate-100,
+html:not(.dark) .fill-slate-200 {
+  fill: #1C1917 !important;
 }
 
 /* Responsive Grids */

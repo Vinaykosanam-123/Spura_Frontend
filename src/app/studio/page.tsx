@@ -509,13 +509,13 @@ function StudioContent() {
                     borderRadius: "var(--radius-sm)",
                     backgroundColor: isSelected ? "rgba(245, 158, 11, 0.12)" : "transparent",
                     border: `1px solid ${isSelected ? "rgba(245, 158, 11, 0.4)" : "transparent"}`,
-                    color: isSelected ? "#ffffff" : "var(--text-secondary)",
+                    color: isSelected ? "var(--text-primary)" : "var(--text-secondary)",
                     textAlign: "left",
                     transition: "all 0.15s ease",
                     cursor: "pointer",
                   }}
                 >
-                  <div style={{ fontWeight: 600, fontSize: "0.9rem", color: isSelected ? "#ffffff" : "var(--text-primary)" }}>
+                  <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--text-primary)" }}>
                     {c.title}
                   </div>
                   <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px" }}>
@@ -599,7 +599,7 @@ function StudioContent() {
                   <div
                     style={{
                       padding: "0.85rem 1.25rem",
-                      backgroundColor: "rgba(9, 12, 16, 0.72)",
+                      backgroundColor: "var(--bg-surface-elevated)",
                       borderBottom: "1px solid var(--border-subtle)",
                       display: "flex",
                       alignItems: "center",
