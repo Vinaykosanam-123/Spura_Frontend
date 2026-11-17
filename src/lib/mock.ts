@@ -139,4 +139,6 @@ export function mockResponse(path: string, method: string, body?: BodyInit | nul
   return {};
 }
 
-export const DEV_BYPASS = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true';
+import { isDevBypassEnabled } from './config';
+
+export const DEV_BYPASS = isDevBypassEnabled();

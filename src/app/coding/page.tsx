@@ -497,10 +497,18 @@ function CodingWorkspace({
     setRunVerdict("Queued");
 
     try {
+      const idempotencyKey =
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `sub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
       const res = await fetch(`/api/v1/me/questions/${encodeURIComponent(dbQuestionId)}/submit`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "idempotency-key": idempotencyKey,
+        },
         body: JSON.stringify({ language, sourceCode: code }),
       });
 
@@ -520,12 +528,20 @@ function CodingWorkspace({
       if (!subId) throw new Error("No submission ID returned");
 
       let finalSub: DbSubmissionItem & { testsPassed?: number; testsTotal?: number } = subInit.submission;
+      let pollFailures = 0;
       for (let attempt = 0; attempt < 30; attempt++) {
         await new Promise((r) => setTimeout(r, 500));
         const pollRes = await fetch(`/api/v1/me/submissions/${encodeURIComponent(subId)}`, {
           credentials: "include",
         });
-        if (!pollRes.ok) break;
+        if (!pollRes.ok) {
+          pollFailures += 1;
+          if (pollFailures >= 5) {
+            throw new Error(`Could not fetch submission status (${pollRes.status}). Check submissions tab for result.`);
+          }
+          continue;
+        }
+        pollFailures = 0;
         const pollData = await pollRes.json();
         if (pollData?.submission) {
           finalSub = pollData.submission;
@@ -1105,7 +1121,7 @@ function CodingWorkspace({
                     <div style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--text-primary)" }}>
                       {diagramNotice ? "Python 3 / JavaScript Diagram Tracer" : "Interactive Diagram Ready"}
                     </div>
-                    <p style={{ fontSize: "0.85rem", maxWidth: "360px", lineHeight: 1.55, color: diagramNotice ? "#FDE68A" : "var(--text-muted)" }}>
+                    <p style={{ fontSize: "0.85rem", maxWidth: "360px", lineHeight: 1.55, color: diagramNotice ? "var(--accent-amber)" : "var(--text-muted)" }}>
                       {diagramNotice ||
                         'Click "Animate Diagram" in the editor toolbar to run your solution and see the data structure animate step by step.'}
                     </p>
@@ -1166,12 +1182,13 @@ function CodingWorkspace({
                 <div
                   style={{
                     display: "flex",
+                    flexWrap: "wrap",
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "0.6rem 1rem",
                     backgroundColor: "var(--bg-code)",
                     borderTop: "1px solid var(--border-subtle)",
-                    gap: "0.75rem",
+                    gap: "0.5rem 0.75rem",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
@@ -1280,7 +1297,7 @@ function CodingWorkspace({
                           fontSize: "0.7rem",
                           fontWeight: 600,
                           backgroundColor: playbackSpeed === opt.ms ? "rgba(245, 158, 11, 0.2)" : "transparent",
-                          color: playbackSpeed === opt.ms ? "#FBBF24" : "var(--text-muted)",
+                          color: playbackSpeed === opt.ms ? "var(--accent-amber)" : "var(--text-muted)",
                         }}
                       >
                         {opt.label}

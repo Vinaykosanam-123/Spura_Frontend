@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { getServerApiBaseUrl, isDevBypassEnabled } from './config';
 import type { User } from './types';
 
 export interface ServerApiError extends Error {
@@ -17,12 +18,12 @@ export async function getViewer(): Promise<User | null> {
 
 /** Server-side GET to the API, forwarding the session cookie. No-store (auth data). */
 export async function serverGet<T>(path: string): Promise<T> {
-  if (process.env.NEXT_PUBLIC_DEV_BYPASS === 'true') {
+  if (isDevBypassEnabled()) {
     const { mockResponse } = await import('./mock');
     return mockResponse(path, 'GET') as T;
   }
   const jar = await cookies();
-  const base = process.env.NEXT_PUBLIC_API_URL;
+  const base = getServerApiBaseUrl();
   let res: Response;
   try {
     res = await fetch(`${base}${path}`, {

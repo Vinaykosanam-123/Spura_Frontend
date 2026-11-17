@@ -67,13 +67,13 @@ export default async function CompanyBankPage({
   try {
     const [prRes, oaRes] = await Promise.all([
       serverGet<{ questions: PracticeQ[] }>(
-        `/api/v1/me/bank/companies/${slug}/practice?limit=200`,
+        `/api/v1/me/bank/companies/${encodeURIComponent(slug)}/practice?limit=200`,
       ),
       serverGet<{
         questions: Array<{ id: string; title: string; format?: string; section?: string; difficulty?: string | null; askedAt?: string | null }>;
         guide?: { rounds?: Array<{ name: string; focus: string }>; processNotes?: string | null } | null;
       }>(
-        `/api/v1/me/bank/companies/${slug}/oa?limit=100`,
+        `/api/v1/me/bank/companies/${encodeURIComponent(slug)}/oa?limit=100`,
       ).catch(() => ({ questions: [], guide: null })),
     ]);
     practice = prRes.questions;

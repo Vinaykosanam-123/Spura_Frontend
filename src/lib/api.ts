@@ -30,10 +30,10 @@ import type {
   TopicProgress,
   User,
 } from './types';
-import { DEV_BYPASS, mockResponse } from './mock';
+import { CLIENT_API_BASE_URL, isDevBypassEnabled } from './config';
+import { mockResponse } from './mock';
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+export const API_URL = CLIENT_API_BASE_URL;
 
 export class ApiError extends Error {
   status: number;
@@ -53,7 +53,7 @@ export class ApiError extends Error {
 }
 
 async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
-  if (DEV_BYPASS) return mockResponse(path, init.method ?? 'GET', init.body) as T;
+  if (isDevBypassEnabled()) return mockResponse(path, init.method ?? 'GET', init.body) as T;
   const headers: Record<string, string> = {
     ...(init.headers as Record<string, string>),
   };
@@ -168,11 +168,11 @@ export const api = {
   enrollments: () => req<{ enrollments: Enrollment[] }>('/api/v1/me/enrollments'),
   curriculum: () => req<{ curriculum: CurriculumEntry[] }>('/api/v1/me/curriculum'),
   lessonDetail: (id: string) =>
-    req<{ lesson: LessonDetail }>(`/api/v1/me/lessons/${id}`),
+    req<{ lesson: LessonDetail }>(`/api/v1/me/lessons/${encodeURIComponent(id)}`),
   lessonResources: (id: string) =>
-    req<{ resources: LessonResource[] }>(`/api/v1/me/lessons/${id}/resources`),
+    req<{ resources: LessonResource[] }>(`/api/v1/me/lessons/${encodeURIComponent(id)}/resources`),
   lessonQuestions: (id: string) =>
-    req<{ questions: LessonQuestion[] }>(`/api/v1/me/lessons/${id}/questions`),
+    req<{ questions: LessonQuestion[] }>(`/api/v1/me/lessons/${encodeURIComponent(id)}/questions`),
   saveProgress: (id: string, watchedSeconds: number) =>
     req<{
       progress: {
@@ -181,7 +181,7 @@ export const api = {
         completedAt: string | null;
         updatedAt: string;
       };
-    }>(`/api/v1/me/lessons/${id}/progress`, {
+    }>(`/api/v1/me/lessons/${encodeURIComponent(id)}/progress`, {
       method: 'POST',
       body: JSON.stringify({ watchedSeconds }),
     }),
@@ -193,32 +193,32 @@ export const api = {
         completedAt: string;
         updatedAt: string;
       };
-    }>(`/api/v1/me/lessons/${id}/complete`, { method: 'POST' }),
+    }>(`/api/v1/me/lessons/${encodeURIComponent(id)}/complete`, { method: 'POST' }),
   upcoming: () => req<{ live: LiveClass[] }>('/api/v1/me/live/upcoming'),
   liveUpcoming: () => req<{ live: LiveClass[] }>('/api/v1/me/live/upcoming'),
   recordings: () => req<{ recordings: Recording[] }>('/api/v1/me/recordings'),
   recordingDetail: (classId: string) =>
-    req<{ recording: Recording }>(`/api/v1/me/recordings/${classId}`),
+    req<{ recording: Recording }>(`/api/v1/me/recordings/${encodeURIComponent(classId)}`),
   announcements: () =>
     req<{ announcements: Announcement[] }>('/api/v1/me/announcements'),
   progress: () => req<{ progress: TopicProgress[] }>('/api/v1/me/progress'),
   attendance: (classId: string) =>
-    req<{ attended: boolean }>(`/api/v1/me/classes/${classId}/attendance`, {
+    req<{ attended: boolean }>(`/api/v1/me/classes/${encodeURIComponent(classId)}/attendance`, {
       method: 'POST',
     }),
   attend: (classId: string) =>
-    req<{ attended: boolean }>(`/api/v1/me/classes/${classId}/attendance`, {
+    req<{ attended: boolean }>(`/api/v1/me/classes/${encodeURIComponent(classId)}/attendance`, {
       method: 'POST',
     }),
   questionDetail: (id: string) =>
-    req<QuestionDetail>(`/api/v1/me/questions/${id}`),
+    req<QuestionDetail>(`/api/v1/me/questions/${encodeURIComponent(id)}`),
 
   // ── Code Execution, Submissions & Analysis ──
   runQuestion: (
     questionId: string,
     data: { language: string; sourceCode: string; stdin?: string },
   ) =>
-    req<RunJobResponse>(`/api/v1/me/questions/${questionId}/run`, {
+    req<RunJobResponse>(`/api/v1/me/questions/${encodeURIComponent(questionId)}/run`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -226,12 +226,12 @@ export const api = {
     questionId: string,
     data: { language: CodeLanguage; sourceCode: string; stdin?: string },
   ) =>
-    req<RunJobResponse>(`/api/v1/me/questions/${questionId}/run`, {
+    req<RunJobResponse>(`/api/v1/me/questions/${encodeURIComponent(questionId)}/run`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   runJob: (runJobId: string) =>
-    req<RunJobResponse>(`/api/v1/me/run-jobs/${runJobId}`),
+    req<RunJobResponse>(`/api/v1/me/run-jobs/${encodeURIComponent(runJobId)}`),
   submitQuestion: (
     questionId: string,
     data: { language: string; sourceCode: string },
@@ -244,7 +244,7 @@ export const api = {
         verdict?: string | null;
         createdAt?: string;
       };
-    }>(`/api/v1/me/questions/${questionId}/submit`, {
+    }>(`/api/v1/me/questions/${encodeURIComponent(questionId)}/submit`, {
       method: 'POST',
       headers: { 'idempotency-key': idempotencyKey },
       body: JSON.stringify(data),
@@ -261,13 +261,13 @@ export const api = {
         verdict?: string | null;
         createdAt?: string;
       };
-    }>(`/api/v1/me/questions/${questionId}/submit`, {
+    }>(`/api/v1/me/questions/${encodeURIComponent(questionId)}/submit`, {
       method: 'POST',
       headers: { 'idempotency-key': idempotencyKey },
       body: JSON.stringify(data),
     }),
   submissionDetail: (id: string) =>
-    req<{ submission: Submission }>(`/api/v1/me/submissions/${id}`),
+    req<{ submission: Submission }>(`/api/v1/me/submissions/${encodeURIComponent(id)}`),
   submissions: (questionId?: string, cursor?: string) => {
     const sp = new URLSearchParams();
     if (questionId) sp.set('questionId', questionId);
@@ -293,7 +293,7 @@ export const api = {
           hint: string;
         } | null;
       };
-    }>(`/api/v1/me/questions/${questionId}/analyze`, {
+    }>(`/api/v1/me/questions/${encodeURIComponent(questionId)}/analyze`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -301,7 +301,7 @@ export const api = {
     questionId: string,
     data: { language: CodeLanguage; sourceCode: string },
   ) =>
-    req<{ analysis: CodeAnalysis }>(`/api/v1/me/questions/${questionId}/analyze`, {
+    req<{ analysis: CodeAnalysis }>(`/api/v1/me/questions/${encodeURIComponent(questionId)}/analyze`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -319,23 +319,25 @@ export const api = {
         ...(data.planId ? { planId: data.planId } : {}),
         idempotencyKey:
           data.idempotencyKey ??
-          `ord-${data.batchId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          (typeof crypto !== 'undefined' && crypto.randomUUID
+            ? `ord-${crypto.randomUUID()}`
+            : `ord-${data.batchId}-${Date.now()}`),
       }),
     }),
   getOrder: (orderId: string) =>
-    req<{ order: PaymentOrder }>(`/api/v1/payments/orders/${orderId}`),
+    req<{ order: PaymentOrder }>(`/api/v1/payments/orders/${encodeURIComponent(orderId)}`),
   myOrders: () => req<{ orders: PaymentOrder[] }>('/api/v1/me/orders'),
   checkoutOrder: (orderId: string) =>
-    req<CheckoutSession>(`/api/v1/payments/orders/${orderId}/checkout`, {
+    req<CheckoutSession>(`/api/v1/payments/orders/${encodeURIComponent(orderId)}/checkout`, {
       method: 'POST',
     }),
   sandboxCompleteOrder: (orderId: string) =>
-    req<{ outcome: unknown }>(`/api/v1/payments/orders/${orderId}/sandbox-complete`, {
+    req<{ outcome: unknown }>(`/api/v1/payments/orders/${encodeURIComponent(orderId)}/sandbox-complete`, {
       method: 'POST',
     }),
   myInvoices: () => req<{ invoices: Invoice[] }>('/api/v1/me/invoices'),
   myInvoiceDetail: (invoiceId: string) =>
-    req<{ invoice: Invoice }>(`/api/v1/me/invoices/${invoiceId}`),
+    req<{ invoice: Invoice }>(`/api/v1/me/invoices/${encodeURIComponent(invoiceId)}`),
   myRefunds: () => req<{ refunds: Refund[] }>('/api/v1/me/refunds'),
 
   // ── Notifications ──
@@ -356,7 +358,7 @@ export const api = {
   },
   markNotificationRead: (notificationId: string) =>
     req<{ notification: NotificationItem }>(
-      `/api/v1/me/notifications/${notificationId}/read`,
+      `/api/v1/me/notifications/${encodeURIComponent(notificationId)}/read`,
       { method: 'PATCH' },
     ),
   markAllNotificationsRead: () =>
@@ -401,7 +403,7 @@ export const api = {
   },
   adminUserDetail: (userId: string) =>
     req<{ user: User; enrollments: Enrollment[] }>(
-      `/api/v1/admin/users/${userId}`,
+      `/api/v1/admin/users/${encodeURIComponent(userId)}`,
     ),
   adminCreateUser: (data: {
     fullName: string;
@@ -420,14 +422,14 @@ export const api = {
     data: { status: 'active' | 'suspended' | 'deleted'; reason?: string },
   ) =>
     req<{ user: User; revokedSessionsCount: number }>(
-      `/api/v1/admin/users/${userId}/status`,
+      `/api/v1/admin/users/${encodeURIComponent(userId)}/status`,
       {
         method: 'PATCH',
         body: JSON.stringify(data),
       },
     ),
   adminUpdateUserRoles: (userId: string, roles: string[]) =>
-    req<{ user: User }>(`/api/v1/admin/users/${userId}/roles`, {
+    req<{ user: User }>(`/api/v1/admin/users/${encodeURIComponent(userId)}/roles`, {
       method: 'PUT',
       body: JSON.stringify({ roles }),
     }),
@@ -436,7 +438,7 @@ export const api = {
   adminCourses: () => req<{ courses: Course[] }>('/api/v1/admin/courses'),
   adminCourseDetail: (courseId: string) =>
     req<{ course: Course; batches: Batch[]; pricingPlans: PricingPlan[] }>(
-      `/api/v1/admin/courses/${courseId}`,
+      `/api/v1/admin/courses/${encodeURIComponent(courseId)}`,
     ),
   createCourse: (data: {
     slug: string;
@@ -464,21 +466,21 @@ export const api = {
       learningOutcomes: string[];
     }>,
   ) =>
-    req<{ course: Course }>(`/api/v1/admin/courses/${courseId}`, {
+    req<{ course: Course }>(`/api/v1/admin/courses/${encodeURIComponent(courseId)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
   publishCourse: (id: string) =>
-    req<{ course: Course }>(`/api/v1/admin/courses/${id}/publish`, {
+    req<{ course: Course }>(`/api/v1/admin/courses/${encodeURIComponent(id)}/publish`, {
       method: 'POST',
     }),
   archiveCourse: (id: string) =>
-    req<{ course: Course }>(`/api/v1/admin/courses/${id}/archive`, {
+    req<{ course: Course }>(`/api/v1/admin/courses/${encodeURIComponent(id)}/archive`, {
       method: 'POST',
     }),
   adminPricingPlans: (courseId: string) =>
     req<{ pricingPlans: PricingPlan[] }>(
-      `/api/v1/admin/courses/${courseId}/pricing-plans`,
+      `/api/v1/admin/courses/${encodeURIComponent(courseId)}/pricing-plans`,
     ),
   createPricingPlan: (
     courseId: string,
@@ -491,7 +493,7 @@ export const api = {
     },
   ) =>
     req<{ pricingPlan: PricingPlan }>(
-      `/api/v1/admin/courses/${courseId}/pricing-plans`,
+      `/api/v1/admin/courses/${encodeURIComponent(courseId)}/pricing-plans`,
       {
         method: 'POST',
         body: JSON.stringify(data),
@@ -506,7 +508,7 @@ export const api = {
       active: boolean;
     }>,
   ) =>
-    req<{ pricingPlan: PricingPlan }>(`/api/v1/admin/pricing-plans/${planId}`, {
+    req<{ pricingPlan: PricingPlan }>(`/api/v1/admin/pricing-plans/${encodeURIComponent(planId)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
@@ -521,7 +523,7 @@ export const api = {
   },
   adminBatchDetail: (batchId: string) =>
     req<{ batch: Batch; instructors: BatchInstructor[] }>(
-      `/api/v1/admin/batches/${batchId}`,
+      `/api/v1/admin/batches/${encodeURIComponent(batchId)}`,
     ),
   createBatch: (data: {
     courseId: string;
@@ -553,13 +555,13 @@ export const api = {
       status: string;
     }>,
   ) =>
-    req<{ batch: Batch }>(`/api/v1/admin/batches/${batchId}`, {
+    req<{ batch: Batch }>(`/api/v1/admin/batches/${encodeURIComponent(batchId)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
   batchInstructors: (batchId: string) =>
     req<{ instructors: BatchInstructor[] }>(
-      `/api/v1/admin/batches/${batchId}/instructors`,
+      `/api/v1/admin/batches/${encodeURIComponent(batchId)}/instructors`,
     ),
   assignBatchInstructor: (batchId: string, userId: string) =>
     req<{
@@ -569,22 +571,22 @@ export const api = {
         email: string;
         fullName: string;
       };
-    }>(`/api/v1/admin/batches/${batchId}/instructors`, {
+    }>(`/api/v1/admin/batches/${encodeURIComponent(batchId)}/instructors`, {
       method: 'POST',
       body: JSON.stringify({ userId }),
     }),
   removeBatchInstructor: (batchId: string, userId: string) =>
-    req<void>(`/api/v1/admin/batches/${batchId}/instructors/${userId}`, {
+    req<void>(`/api/v1/admin/batches/${encodeURIComponent(batchId)}/instructors/${encodeURIComponent(userId)}`, {
       method: 'DELETE',
     }),
   enrollUser: (batchId: string, data: { userId: string; state?: string; accessExpiresAt?: string }) =>
     req<{ enrollment: Enrollment }>(
-      `/api/v1/admin/batches/${batchId}/enrollments`,
+      `/api/v1/admin/batches/${encodeURIComponent(batchId)}/enrollments`,
       { method: 'POST', body: JSON.stringify(data) },
     ),
   batchEnrollments: (batchId: string) =>
     req<{ enrollments: Enrollment[] }>(
-      `/api/v1/admin/batches/${batchId}/enrollments`,
+      `/api/v1/admin/batches/${encodeURIComponent(batchId)}/enrollments`,
     ),
   adminEnrollments: (params?: {
     userId?: string;
@@ -607,19 +609,19 @@ export const api = {
       accessExpiresAt?: string;
     },
   ) =>
-    req<{ enrollment: Enrollment }>(`/api/v1/admin/enrollments/${enrollmentId}`, {
+    req<{ enrollment: Enrollment }>(`/api/v1/admin/enrollments/${encodeURIComponent(enrollmentId)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
 
   // ── Admin: Curriculum ──
   adminCurriculum: (courseId: string) =>
-    req<CurriculumEntry>(`/api/v1/admin/courses/${courseId}/curriculum`),
+    req<CurriculumEntry>(`/api/v1/admin/courses/${encodeURIComponent(courseId)}/curriculum`),
   createModule: (
     courseId: string,
     data: { sequence: number; title: string; description?: string },
   ) =>
-    req(`/api/v1/admin/courses/${courseId}/modules`, {
+    req(`/api/v1/admin/courses/${encodeURIComponent(courseId)}/modules`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -632,12 +634,12 @@ export const api = {
       status: 'draft' | 'published' | 'archived';
     }>,
   ) =>
-    req(`/api/v1/admin/modules/${moduleId}`, {
+    req(`/api/v1/admin/modules/${encodeURIComponent(moduleId)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
   publishModule: (moduleId: string) =>
-    req(`/api/v1/admin/modules/${moduleId}/publish`, { method: 'POST' }),
+    req(`/api/v1/admin/modules/${encodeURIComponent(moduleId)}/publish`, { method: 'POST' }),
   createLesson: (
     moduleId: string,
     data: {
@@ -648,7 +650,7 @@ export const api = {
       durationSeconds?: number;
     },
   ) =>
-    req(`/api/v1/admin/modules/${moduleId}/lessons`, {
+    req(`/api/v1/admin/modules/${encodeURIComponent(moduleId)}/lessons`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -663,12 +665,12 @@ export const api = {
       status: 'draft' | 'published' | 'archived';
     }>,
   ) =>
-    req(`/api/v1/admin/lessons/${lessonId}`, {
+    req(`/api/v1/admin/lessons/${encodeURIComponent(lessonId)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
   publishLesson: (lessonId: string) =>
-    req(`/api/v1/admin/lessons/${lessonId}/publish`, { method: 'POST' }),
+    req(`/api/v1/admin/lessons/${encodeURIComponent(lessonId)}/publish`, { method: 'POST' }),
   createResource: (
     lessonId: string,
     data: {
@@ -678,19 +680,19 @@ export const api = {
       contentType: string;
     },
   ) =>
-    req(`/api/v1/admin/lessons/${lessonId}/resources`, {
+    req(`/api/v1/admin/lessons/${encodeURIComponent(lessonId)}/resources`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   createPrerequisite: (lessonId: string, prerequisiteLessonId: string) =>
-    req(`/api/v1/admin/lessons/${lessonId}/prerequisites`, {
+    req(`/api/v1/admin/lessons/${encodeURIComponent(lessonId)}/prerequisites`, {
       method: 'POST',
       body: JSON.stringify({ prerequisiteLessonId }),
     }),
 
   // ── Admin: Live Classes, Recordings, Questions & Announcements ──
   batchClasses: (batchId: string) =>
-    req<{ classes: LiveClass[] }>(`/api/v1/admin/batches/${batchId}/classes`),
+    req<{ classes: LiveClass[] }>(`/api/v1/admin/batches/${encodeURIComponent(batchId)}/classes`),
   createClass: (
     batchId: string,
     data: {
@@ -704,7 +706,7 @@ export const api = {
       lessonId?: string;
     },
   ) =>
-    req<{ class: LiveClass }>(`/api/v1/admin/batches/${batchId}/classes`, {
+    req<{ class: LiveClass }>(`/api/v1/admin/batches/${encodeURIComponent(batchId)}/classes`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -722,7 +724,7 @@ export const api = {
       questions?: Array<{ slug: string; title: string; externalUrl?: string }>;
     },
   ) =>
-    req(`/api/v1/admin/batches/${batchId}/quick-class`, {
+    req(`/api/v1/admin/batches/${encodeURIComponent(batchId)}/quick-class`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -737,17 +739,17 @@ export const api = {
       status?: string;
     },
   ) =>
-    req<{ class: LiveClass }>(`/api/v1/admin/classes/${classId}`, {
+    req<{ class: LiveClass }>(`/api/v1/admin/classes/${encodeURIComponent(classId)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
   classAttendance: (classId: string) =>
     req<{ attendance: ClassAttendance[] }>(
-      `/api/v1/admin/classes/${classId}/attendance`,
+      `/api/v1/admin/classes/${encodeURIComponent(classId)}/attendance`,
     ),
   revokeRecordingAccess: (classId: string, userId: string) =>
     req<{ revoked: boolean }>(
-      `/api/v1/admin/classes/${classId}/recording-access/${userId}/revoke`,
+      `/api/v1/admin/classes/${encodeURIComponent(classId)}/recording-access/${encodeURIComponent(userId)}/revoke`,
       { method: 'POST' },
     ),
   createQuestion: (data: {
@@ -776,7 +778,7 @@ export const api = {
     lessonId: string,
     data: { questionId: string; sequence: number },
   ) =>
-    req(`/api/v1/admin/lessons/${lessonId}/questions`, {
+    req(`/api/v1/admin/lessons/${encodeURIComponent(lessonId)}/questions`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -790,7 +792,7 @@ export const api = {
     },
   ) =>
     req<{ version: { id: string; statement: string; timeLimitMs: number } }>(
-      `/api/v1/admin/questions/${questionId}/versions`,
+      `/api/v1/admin/questions/${encodeURIComponent(questionId)}/versions`,
       {
         method: 'POST',
         body: JSON.stringify(data),
@@ -808,7 +810,7 @@ export const api = {
     },
   ) =>
     req<{ testcase: { id: string; isSample: boolean } }>(
-      `/api/v1/admin/versions/${versionId}/testcases`,
+      `/api/v1/admin/versions/${encodeURIComponent(versionId)}/testcases`,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -843,17 +845,17 @@ export const api = {
     }>('/api/v1/admin/orders'),
   adminInvoices: () => req<{ invoices: Invoice[] }>('/api/v1/admin/invoices'),
   adminInvoiceDetail: (invoiceId: string) =>
-    req<{ invoice: Invoice }>(`/api/v1/admin/invoices/${invoiceId}`),
+    req<{ invoice: Invoice }>(`/api/v1/admin/invoices/${encodeURIComponent(invoiceId)}`),
   createRefund: (
     orderId: string,
     data: { amountMinor?: number; reason: string; revokeEnrollment?: boolean },
   ) =>
-    req<{ refund: Refund }>(`/api/v1/admin/orders/${orderId}/refunds`, {
+    req<{ refund: Refund }>(`/api/v1/admin/orders/${encodeURIComponent(orderId)}/refunds`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   orderRefunds: (orderId: string) =>
-    req<{ refunds: Refund[] }>(`/api/v1/admin/orders/${orderId}/refunds`),
+    req<{ refunds: Refund[] }>(`/api/v1/admin/orders/${encodeURIComponent(orderId)}/refunds`),
   adminRefunds: () => req<{ refunds: Refund[] }>('/api/v1/admin/refunds'),
 
   // ── Company Bank ──
@@ -886,7 +888,7 @@ export const api = {
         sourceUrl: string | null;
         askedAt: string | null;
       }>;
-    }>(`/api/v1/me/bank/companies/${slug}/oa${qs ? `?${qs}` : ''}`);
+    }>(`/api/v1/me/bank/companies/${encodeURIComponent(slug)}/oa${qs ? `?${qs}` : ''}`);
   },
   bankCompanyPractice: (
     slug: string,
@@ -911,7 +913,7 @@ export const api = {
         hintCount: number;
         companies: Array<{ slug: string; name: string; frequency: number }>;
       }>;
-    }>(`/api/v1/me/bank/companies/${slug}/practice${qs ? `?${qs}` : ''}`);
+    }>(`/api/v1/me/bank/companies/${encodeURIComponent(slug)}/practice${qs ? `?${qs}` : ''}`);
   },
   bankTop: (difficulty?: string, limit = 30) =>
     req<{
@@ -924,7 +926,7 @@ export const api = {
         companyCount: number;
       }>;
     }>(
-      `/api/v1/me/bank/top?limit=${limit}${difficulty ? `&difficulty=${difficulty}` : ''}`,
+      `/api/v1/me/bank/top?limit=${limit}${difficulty ? `&difficulty=${encodeURIComponent(difficulty)}` : ''}`,
     ),
   bankQuestions: (
     params: {
@@ -980,7 +982,7 @@ export const api = {
         recency: string;
         notes: string | null;
       }>;
-    }>(`/api/v1/me/bank/questions/${id}`),
+    }>(`/api/v1/me/bank/questions/${encodeURIComponent(id)}`),
 
   // ── Mocks, Contests & Feedback ──
   createMock: (data: {
@@ -1041,7 +1043,7 @@ export const api = {
           solved: boolean;
         }>;
       };
-    }>(`/api/v1/me/mocks/${id}`),
+    }>(`/api/v1/me/mocks/${encodeURIComponent(id)}`),
   contests: () =>
     req<{
       contests: Array<{
@@ -1076,11 +1078,11 @@ export const api = {
       }>;
     }>('/api/v1/admin/contests'),
   deleteContest: (id: string) =>
-    req<{ deleted: boolean; id: string }>(`/api/v1/admin/contests/${id}`, {
+    req<{ deleted: boolean; id: string }>(`/api/v1/admin/contests/${encodeURIComponent(id)}`, {
       method: 'DELETE',
     }),
   joinContest: (id: string) =>
-    req<{ joined: boolean }>(`/api/v1/me/contests/${id}/join`, {
+    req<{ joined: boolean }>(`/api/v1/me/contests/${encodeURIComponent(id)}/join`, {
       method: 'POST',
     }),
   contestDetail: (id: string) =>
@@ -1110,7 +1112,7 @@ export const api = {
       }>;
       myScore: number | null;
       joined?: boolean;
-    }>(`/api/v1/me/contests/${id}`),
+    }>(`/api/v1/me/contests/${encodeURIComponent(id)}`),
   createContest: (data: {
     title: string;
     companySlug?: string;
@@ -1147,7 +1149,7 @@ export const api = {
       adminResponse?: string | null;
     },
   ) =>
-    req<{ feedback: FeedbackItem }>(`/api/v1/admin/feedback/${feedbackId}`, {
+    req<{ feedback: FeedbackItem }>(`/api/v1/admin/feedback/${encodeURIComponent(feedbackId)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),

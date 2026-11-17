@@ -237,28 +237,40 @@ export default function LessonPage() {
     return { href: '/visualize', label: 'data structures' };
   })();
 
-  const embedVideoUrl = (() => {
+  const videoInfo = (() => {
     const raw = lesson.videoProviderId?.trim();
     if (!raw) return null;
     try {
       const u = new URL(raw);
-      if (u.hostname.includes('youtube.com')) {
+      const host = u.hostname.toLowerCase();
+      if (host === 'youtube.com' || host === 'www.youtube.com' || host === 'm.youtube.com') {
         const v = u.searchParams.get('v');
-        if (v) return `https://www.youtube.com/embed/${v}`;
+        if (v && /^[a-zA-Z0-9_-]{6,}$/.test(v)) {
+          return { kind: 'embed' as const, url: `https://www.youtube.com/embed/${encodeURIComponent(v)}` };
+        }
       }
-      if (u.hostname === 'youtu.be') {
+      if (host === 'youtu.be') {
         const v = u.pathname.replace(/^\//, '');
-        if (v) return `https://www.youtube.com/embed/${v}`;
+        if (v && /^[a-zA-Z0-9_-]{6,}$/.test(v)) {
+          return { kind: 'embed' as const, url: `https://www.youtube.com/embed/${encodeURIComponent(v)}` };
+        }
       }
-      if (u.hostname.includes('vimeo.com')) {
-        const v = u.pathname.replace(/^\//, '');
-        if (/^\d+$/.test(v)) return `https://player.vimeo.com/video/${v}`;
+      if (host === 'vimeo.com' || host === 'www.vimeo.com' || host === 'player.vimeo.com') {
+        const v = u.pathname.replace(/^\/(video\/)?/, '');
+        if (/^\d+$/.test(v)) {
+          return { kind: 'embed' as const, url: `https://player.vimeo.com/video/${v}` };
+        }
+      }
+      if (u.protocol === 'https:' || u.protocol === 'http:') {
+        return { kind: 'link' as const, url: raw };
       }
     } catch {
       // Non-URL provider ID
     }
-    return raw;
+    return null;
   })();
+
+  const embedVideoUrl = videoInfo?.url ?? null;
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-10">
@@ -298,9 +310,9 @@ export default function LessonPage() {
         ) : null}
       </article>
 
-      {embedVideoUrl && (
+      {embedVideoUrl && videoInfo && (
         <section className="mt-8 card-calm rounded-2xl overflow-hidden border border-stone-200 dark:border-white/10" aria-label="Lesson video">
-          {embedVideoUrl.includes('youtube.com/embed/') || embedVideoUrl.includes('player.vimeo.com/video/') ? (
+          {videoInfo.kind === 'embed' ? (
             <div className="aspect-video w-full bg-black">
               <iframe
                 src={embedVideoUrl}
@@ -310,7 +322,7 @@ export default function LessonPage() {
                 allowFullScreen
               />
             </div>
-          ) : embedVideoUrl.startsWith('http') ? (
+          ) : (
             <div className="p-5 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-stone-900 dark:text-stone-100">Lecture Video Resource</p>
@@ -325,7 +337,7 @@ export default function LessonPage() {
                 Watch video ↗
               </a>
             </div>
-          ) : null}
+          )}
         </section>
       )}
 

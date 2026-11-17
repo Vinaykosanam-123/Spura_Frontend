@@ -95,6 +95,7 @@ export default async function BankPage({
               />
               {difficulty && <input type="hidden" name="difficulty" value={difficulty} />}
               {topic && <input type="hidden" name="topic" value={topic} />}
+              {solvedFilter && <input type="hidden" name="solved" value={solvedFilter} />}
             </form>
             <p className="shrink-0 text-[14px] tabular-nums text-stone-500 dark:text-stone-400">
               <span className="font-semibold text-amber-500 dark:text-amber-400">{solved}</span>/{questions.length} Solved

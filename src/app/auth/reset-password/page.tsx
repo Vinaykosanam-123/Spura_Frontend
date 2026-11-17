@@ -4,6 +4,17 @@ import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
+import {
+  EMAIL_RE,
+  formatAuthError,
+  formatPasswordError,
+} from '@/lib/auth-validation';
+import {
+  AuthAlert,
+  AuthShell,
+  PasswordChecklist,
+  PasswordField,
+} from '@/components/auth/AuthShell';
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
@@ -17,67 +28,72 @@ function ResetPasswordContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true);
     setError('');
     setMessage('');
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!EMAIL_RE.test(cleanEmail)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    const pwErr = formatPasswordError(password);
+    if (pwErr) {
+      setError(pwErr);
+      return;
+    }
+
+    setBusy(true);
     try {
       const res = await api.confirmPasswordReset({
-        email: email.trim(),
+        email: cleanEmail,
         token: token.trim(),
         password,
       });
       setDone(true);
-      setMessage(res.message || 'Password has been reset. You can now log in.');
+      setMessage(res.message || 'Password has been reset. You can now sign in.');
       setPassword('');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Password reset failed.');
+      setError(formatAuthError(err, 'Password reset failed.'));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md rounded-2xl border border-stone-200 dark:border-white/10 bg-white dark:bg-[#0F1319] p-6 sm:p-8">
-      <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Reset your password</h1>
-      <p className="mt-1 text-sm text-stone-500 dark:text-slate-400">
-        Choose a new strong password (8+ chars, uppercase, lowercase, and digit).
-      </p>
-
+    <AuthShell
+      badge="Password Reset"
+      title="Set a new password"
+      subtitle="Use a strong password with uppercase, lowercase, and numeric characters."
+    >
       {done ? (
-        <div className="mt-6 space-y-4">
-          <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 p-4 text-sm text-emerald-800 dark:text-emerald-200">
-            {message}
-          </div>
+        <div className="space-y-4">
+          <AuthAlert tone="success">✓ {message}</AuthAlert>
           <Link
             href="/login"
-            className="inline-flex h-10 items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-400 px-5 text-sm font-semibold text-stone-950"
+            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-400 px-5 text-sm font-bold text-stone-950 transition-colors"
           >
-            Continue to log in
+            Continue to sign in →
           </Link>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {error && (
-            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-700 dark:text-red-300">
-              {error}
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="rp-email" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
-              Email
+            <label htmlFor="rp-email" className="block text-sm font-medium text-stone-700 dark:text-stone-200">
+              Email address
             </label>
             <input
               id="rp-email"
               type="email"
               required
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border border-stone-300 dark:border-white/10 rounded-xl bg-white dark:bg-[#090C10] text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="mt-1.5 w-full px-3.5 py-2.5 border border-stone-300 dark:border-white/15 rounded-xl bg-white dark:bg-[#090C10] text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
           <div>
-            <label htmlFor="rp-token" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
-              Reset Token
+            <label htmlFor="rp-token" className="block text-sm font-medium text-stone-700 dark:text-stone-200">
+              Reset token
             </label>
             <input
               id="rp-token"
@@ -85,42 +101,49 @@ function ResetPasswordContent() {
               required
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border border-stone-300 dark:border-white/10 rounded-xl bg-white dark:bg-[#090C10] text-stone-900 dark:text-stone-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="mt-1.5 w-full px-3.5 py-2.5 border border-stone-300 dark:border-white/15 rounded-xl bg-white dark:bg-[#090C10] text-sm font-mono text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
-          <div>
-            <label htmlFor="rp-password" className="block text-sm font-medium text-stone-700 dark:text-stone-300">
-              New Password
-            </label>
-            <input
+          <div className="space-y-2">
+            <PasswordField
               id="rp-password"
-              type="password"
-              required
-              minLength={8}
+              label="New password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border border-stone-300 dark:border-white/10 rounded-xl bg-white dark:bg-[#090C10] text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              onChange={setPassword}
+              autoComplete="new-password"
+              minLength={8}
             />
+            <PasswordChecklist password={password} />
           </div>
           <button
             type="submit"
             disabled={busy}
-            className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-stone-950 font-semibold rounded-xl transition-colors disabled:opacity-50"
+            className="w-full h-11 bg-amber-500 hover:bg-amber-400 text-stone-950 text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
           >
             {busy ? 'Resetting…' : 'Confirm new password'}
           </button>
+          {error && <AuthAlert tone="error">{error}</AuthAlert>}
+          <div className="pt-2 text-center">
+            <Link href="/login" className="text-xs font-medium text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-400">
+              ← Back to sign in
+            </Link>
+          </div>
         </form>
       )}
-    </div>
+    </AuthShell>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <main className="flex-1 flex items-center justify-center px-4 py-16">
-      <Suspense fallback={<p className="text-sm text-stone-500">Loading password reset…</p>}>
-        <ResetPasswordContent />
-      </Suspense>
-    </main>
+    <Suspense
+      fallback={
+        <main className="flex-1 flex items-center justify-center px-4 py-16">
+          <p className="text-sm text-stone-500 dark:text-slate-400">Loading password reset…</p>
+        </main>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

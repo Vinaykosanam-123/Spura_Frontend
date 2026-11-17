@@ -5,7 +5,7 @@ const CARDS = [
   {
     href: '/bank',
     title: 'Practice questions',
-    desc: '480+ runnable problems with company tags, hints and complexity analysis.',
+    desc: '450+ runnable problems with company tags, hints and complexity analysis.',
     cta: 'Browse questions →',
   },
   {

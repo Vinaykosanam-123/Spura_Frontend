@@ -49,6 +49,7 @@ export default function ContestDetailPage() {
           setQuestions(d.questions);
           setBoard(d.leaderboard);
           setMyScore(d.myScore);
+          setJoined(Boolean(d.joined || d.myScore != null));
           setMeta(`${d.contest.difficulty} · ${d.contest.durationMinutes} min${d.contest.companyName ? ` · ${d.contest.companyName}` : ''}`);
         })
         .catch((e: unknown) => {

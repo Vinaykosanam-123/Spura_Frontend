@@ -364,7 +364,7 @@ export default function Home() {
               gap: "0.5rem",
               fontSize: "0.8rem",
               fontWeight: 700,
-              color: "#FBBF24",
+              color: "var(--accent-amber)",
               backgroundColor: "rgba(245, 158, 11, 0.12)",
               padding: "6px 16px",
               borderRadius: "30px",
@@ -525,8 +525,8 @@ export default function Home() {
             </div>
 
             <div>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#F59E0B", marginBottom: "0.2rem" }}>
-                480+
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--accent-amber)", marginBottom: "0.2rem" }}>
+                450+
               </div>
               <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
                 Curated Company Bank Questions
@@ -534,7 +534,7 @@ export default function Home() {
             </div>
 
             <div>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#34D399", marginBottom: "0.2rem" }}>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--accent-emerald)", marginBottom: "0.2rem" }}>
                 54+ Problems
               </div>
               <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
@@ -543,7 +543,7 @@ export default function Home() {
             </div>
 
             <div>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#FBBF24", marginBottom: "0.2rem" }}>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--accent-amber)", marginBottom: "0.2rem" }}>
                 2 Full Years
               </div>
               <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
@@ -1193,7 +1193,7 @@ export default function Home() {
               fontWeight: 700,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              color: "#FBBF24",
+              color: "var(--accent-amber)",
               backgroundColor: "rgba(245, 158, 11, 0.1)",
               padding: "4px 12px",
               borderRadius: "20px",
@@ -1264,7 +1264,7 @@ export default function Home() {
               )}
 
               <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1.75rem", lineHeight: 1.5, marginTop: "0.75rem" }}>
-                One-time enrollment grants immediate access to all live classes, 2-year HD recordings, the 480+ company problem sheet, contests, and visual compiler tools.
+                One-time enrollment grants immediate access to all live classes, 2-year HD recordings, the 450+ company problem sheet, contests, and visual compiler tools.
               </div>
 
               <Link

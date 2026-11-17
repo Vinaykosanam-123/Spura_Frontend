@@ -16,6 +16,7 @@ export default function NotificationsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
   const PAGE_SIZE = 50;
 
   const load = useCallback(async () => {
@@ -90,9 +91,12 @@ export default function NotificationsPage() {
 
   const markAllRead = async () => {
     setBusy(true);
+    setErr('');
     try {
       await api.markAllNotificationsRead();
       await load();
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : 'Could not mark notifications as read.');
     } finally {
       setBusy(false);
     }
@@ -100,6 +104,11 @@ export default function NotificationsPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-10">
+      {err && (
+        <div role="alert" className="mb-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+          {err}
+        </div>
+      )}
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
           <h1 className="text-[28px] font-semibold tracking-tight text-stone-900 dark:text-stone-50">

@@ -1,21 +1,22 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import BatchTable from '@/components/BatchTable';
+import { getServerApiBaseUrl, isDevBypassEnabled } from '@/lib/config';
 import type { CourseDetail } from '@/lib/types';
 import { courseDurationLabel } from '@/lib/format';
 
 export const revalidate = 60;
 
 async function getCourse(slug: string): Promise<CourseDetail | null> {
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  if (!base) return null;
-  if (process.env.NEXT_PUBLIC_DEV_BYPASS === 'true') {
+  const encoded = encodeURIComponent(slug);
+  if (isDevBypassEnabled()) {
     const { mockResponse } = await import('@/lib/mock');
-    const data = mockResponse(`/api/v1/catalog/courses/${slug}`, 'GET');
+    const data = mockResponse(`/api/v1/catalog/courses/${encoded}`, 'GET');
     if (!data.course) return null;
     return { course: data.course, batches: data.batches ?? [], pricingPlans: data.pricingPlans ?? [] };
   }
-  const res = await fetch(`${base}/api/v1/catalog/courses/${slug}`, {
+  const base = getServerApiBaseUrl();
+  const res = await fetch(`${base}/api/v1/catalog/courses/${encoded}`, {
     next: { revalidate: 60 },
     signal: AbortSignal.timeout(15_000),
   });
@@ -79,7 +80,7 @@ export default async function CourseDetailPage({
 
       <div className="mt-4 flex items-start gap-3 flex-wrap">
         <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100">{course.course.title}</h1>
-        <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-medium capitalize bg-amber-500/15 text-amber-400 border border-amber-500/25">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-medium capitalize bg-amber-500/15 text-amber-800 dark:text-amber-400 border border-amber-500/25">
           {course.course.level} · {courseDurationLabel(course.course)}
         </span>
       </div>

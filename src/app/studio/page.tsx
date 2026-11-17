@@ -3,11 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Guard from "@/components/Guard";
-
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/+$/, "");
+import { CLIENT_API_BASE_URL } from "@/lib/config";
 
 function studioFetch(path: string, init?: RequestInit) {
-  const url = typeof window !== "undefined" && path.startsWith("/api/") ? path : `${API_BASE}${path}`;
+  const url = typeof window !== "undefined" && path.startsWith("/api/") ? path : `${CLIENT_API_BASE_URL}${path}`;
   return fetch(url, {
     ...init,
     credentials: "include",
@@ -16,6 +15,16 @@ function studioFetch(path: string, init?: RequestInit) {
       ...(init?.headers || {}),
     },
   });
+}
+
+function isSafeHttpUrl(raw?: string | null): raw is string {
+  if (!raw) return false;
+  try {
+    const parsed = new URL(raw);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
 }
 
 interface Lecture {
@@ -86,12 +95,20 @@ function StudioContent() {
   const [showAddSectionInput, setShowAddSectionInput] = useState<boolean>(false);
 
   // Notification Toast
-  const [notification, setNotification] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{ msg: string; tone: "success" | "error" } | null>(null);
+  const toastTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = (msg: string) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 3500);
+  const showToast = (msg: string, tone: "success" | "error" = "success") => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setNotification({ msg, tone });
+    toastTimerRef.current = setTimeout(() => setNotification(null), 4000);
   };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -145,107 +162,73 @@ function StudioContent() {
       published: true,
     };
 
-    try {
-      if (isBackendConnected) {
-        const res = await studioFetch("/api/v1/studio/courses", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setCourses([data.course, ...courses]);
-          setActiveCourseId(data.course.id);
-          setShowNewCourseModal(false);
-          setNewCourseTitle("");
-          setNewCourseDescription("");
-          showToast(`Course "${data.course.title}" created & published!`);
-          return;
-        }
-      }
-    } catch {
-      // fallback
+    if (!isBackendConnected) {
+      showToast("Studio backend is disconnected. Cannot save changes.", "error");
+      return;
     }
 
-    const newId = "c-" + Date.now();
-    const newCourse: Course = {
-      id: newId,
-      slug: newCourseTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      title: newCourseTitle.trim(),
-      description: newCourseDescription.trim() || null,
-      level: newCourseLevel,
-      published: true,
-      sections: [
-        {
-          id: "s-" + Date.now(),
-          courseId: newId,
-          position: 1,
-          title: "Week 01 - Introduction & Core Concepts",
-          published: true,
-          lectures: [],
-        },
-      ],
-    };
-
-    setCourses([newCourse, ...courses]);
-    setActiveCourseId(newId);
-    setShowNewCourseModal(false);
-    setNewCourseTitle("");
-    setNewCourseDescription("");
-    showToast(`Course "${newCourse.title}" created & published!`);
+    try {
+      const res = await studioFetch("/api/v1/studio/courses", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `Failed to create course (${res.status})`);
+      }
+      const data = await res.json();
+      setCourses([data.course, ...courses]);
+      setActiveCourseId(data.course.id);
+      setShowNewCourseModal(false);
+      setNewCourseTitle("");
+      setNewCourseDescription("");
+      showToast(`Course "${data.course.title}" created & published!`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Could not save course.", "error");
+    }
   };
 
   // Add Section
   const handleAddSection = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSectionTitle.trim() || !activeCourse) return;
+    if (!isBackendConnected) {
+      showToast("Studio backend is disconnected. Cannot save section.", "error");
+      return;
+    }
 
     const title = newSectionTitle.trim();
 
     try {
-      if (isBackendConnected) {
-        const res = await studioFetch(`/api/v1/studio/courses/${activeCourse.id}/sections`, {
-          method: "POST",
-          body: JSON.stringify({ title }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const updated = {
-            ...activeCourse,
-            sections: [...(activeCourse.sections || []), data.section],
-          };
-          setCourses(courses.map((c) => (c.id === activeCourse.id ? updated : c)));
-          setNewSectionTitle("");
-          setShowAddSectionInput(false);
-          showToast(`Section "${title}" added.`);
-          return;
-        }
+      const res = await studioFetch(`/api/v1/studio/courses/${encodeURIComponent(activeCourse.id)}/sections`, {
+        method: "POST",
+        body: JSON.stringify({ title }),
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `Failed to add section (${res.status})`);
       }
-    } catch {
-      // fallback
+      const data = await res.json();
+      const updated = {
+        ...activeCourse,
+        sections: [...(activeCourse.sections || []), data.section],
+      };
+      setCourses(courses.map((c) => (c.id === activeCourse.id ? updated : c)));
+      setNewSectionTitle("");
+      setShowAddSectionInput(false);
+      showToast(`Section "${title}" added.`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Could not save section.", "error");
     }
-
-    const newSection: Section = {
-      id: "s-" + Date.now(),
-      courseId: activeCourse.id,
-      position: (activeCourse.sections?.length || 0) + 1,
-      title,
-      published: true,
-      lectures: [],
-    };
-
-    const updatedCourse = {
-      ...activeCourse,
-      sections: [...(activeCourse.sections || []), newSection],
-    };
-    setCourses(courses.map((c) => (c.id === activeCourse.id ? updatedCourse : c)));
-    setNewSectionTitle("");
-    setShowAddSectionInput(false);
-    showToast(`Section "${title}" added.`);
   };
 
   // Add Single Lecture
   const handleAddLecture = async (sectionId: string) => {
     if (!lectureTitle.trim() || !activeCourse) return;
+    if (!isBackendConnected) {
+      showToast("Studio backend is disconnected. Cannot save lecture.", "error");
+      return;
+    }
 
     const input = {
       title: lectureTitle.trim(),
@@ -256,59 +239,36 @@ function StudioContent() {
     };
 
     try {
-      if (isBackendConnected) {
-        const res = await studioFetch(`/api/v1/studio/sections/${sectionId}/lectures`, {
-          method: "POST",
-          body: JSON.stringify(input),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const updatedSections = (activeCourse.sections || []).map((sec) =>
-            sec.id === sectionId ? { ...sec, lectures: [...sec.lectures, data.lecture] } : sec
-          );
-          setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
-          setActiveSectionForLecture(null);
-          setLectureTitle("");
-          setLectureVideoUrl("");
-          setLectureNotes("");
-          showToast(`Lecture added.`);
-          return;
-        }
+      const res = await studioFetch(`/api/v1/studio/sections/${encodeURIComponent(sectionId)}/lectures`, {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `Failed to add lecture (${res.status})`);
       }
-    } catch {
-      // fallback
+      const data = await res.json();
+      const updatedSections = (activeCourse.sections || []).map((sec) =>
+        sec.id === sectionId ? { ...sec, lectures: [...sec.lectures, data.lecture] } : sec
+      );
+      setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
+      setActiveSectionForLecture(null);
+      setLectureTitle("");
+      setLectureVideoUrl("");
+      setLectureNotes("");
+      showToast("Lecture added.");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Could not save lecture.", "error");
     }
-
-    const newLecture: Lecture = {
-      id: "l-" + Date.now(),
-      sectionId,
-      position: 99,
-      title: input.title,
-      videoUrl: input.videoUrl || null,
-      notes: input.notes || null,
-      durationMinutes: input.durationMinutes,
-      published: true,
-    };
-
-    const updatedSections = (activeCourse.sections || []).map((sec) => {
-      if (sec.id === sectionId) {
-        newLecture.position = sec.lectures.length + 1;
-        return { ...sec, lectures: [...sec.lectures, newLecture] };
-      }
-      return sec;
-    });
-
-    setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
-    setActiveSectionForLecture(null);
-    setLectureTitle("");
-    setLectureVideoUrl("");
-    setLectureNotes("");
-    showToast(`Lecture added.`);
   };
 
   // Bulk Add Lectures
   const handleBulkAddLectures = async (sectionId: string) => {
     if (!bulkLecturesText.trim() || !activeCourse) return;
+    if (!isBackendConnected) {
+      showToast("Studio backend is disconnected. Cannot save lectures.", "error");
+      return;
+    }
 
     const lines = bulkLecturesText
       .split("\n")
@@ -328,82 +288,71 @@ function StudioContent() {
     });
 
     try {
-      if (isBackendConnected) {
-        const res = await studioFetch(`/api/v1/studio/sections/${sectionId}/lectures/bulk`, {
-          method: "POST",
-          body: JSON.stringify({ lectures: lectureInputs }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const updatedSections = (activeCourse.sections || []).map((sec) =>
-            sec.id === sectionId ? { ...sec, lectures: [...sec.lectures, ...data.lectures] } : sec
-          );
-          setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
-          setActiveSectionForBulk(null);
-          setBulkLecturesText("");
-          showToast(`Added ${data.lectures.length} lectures.`);
-          return;
-        }
+      const res = await studioFetch(`/api/v1/studio/sections/${encodeURIComponent(sectionId)}/lectures/bulk`, {
+        method: "POST",
+        body: JSON.stringify({ lectures: lectureInputs }),
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `Failed to add lectures (${res.status})`);
       }
-    } catch {
-      // fallback
+      const data = await res.json();
+      const updatedSections = (activeCourse.sections || []).map((sec) =>
+        sec.id === sectionId ? { ...sec, lectures: [...sec.lectures, ...data.lectures] } : sec
+      );
+      setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
+      setActiveSectionForBulk(null);
+      setBulkLecturesText("");
+      showToast(`Added ${data.lectures.length} lectures.`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Could not save lectures.", "error");
     }
-
-    const createdLectures: Lecture[] = lectureInputs.map((item, idx) => ({
-      id: "l-" + Date.now() + "-" + idx,
-      sectionId,
-      position: idx + 1,
-      title: item.title,
-      videoUrl: item.videoUrl || null,
-      notes: null,
-      durationMinutes: item.durationMinutes,
-      published: true,
-    }));
-
-    const updatedSections = (activeCourse.sections || []).map((sec) =>
-      sec.id === sectionId ? { ...sec, lectures: [...sec.lectures, ...createdLectures] } : sec
-    );
-
-    setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
-    setActiveSectionForBulk(null);
-    setBulkLecturesText("");
-    showToast(`Added ${createdLectures.length} lectures.`);
   };
 
   // Delete Lecture
   const handleDeleteLecture = async (sectionId: string, lectureId: string) => {
     if (!confirm("Are you sure you want to delete this lecture?")) return;
-
-    if (isBackendConnected) {
-      try {
-        await studioFetch(`/api/v1/studio/lectures/${lectureId}`, { method: "DELETE" });
-      } catch {
-        // fallback
-      }
+    if (!isBackendConnected) {
+      showToast("Studio backend is disconnected. Cannot delete lecture.", "error");
+      return;
     }
 
-    const updatedSections = (activeCourse.sections || []).map((sec) =>
-      sec.id === sectionId ? { ...sec, lectures: sec.lectures.filter((l) => l.id !== lectureId) } : sec
-    );
-    setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
-    showToast("Lecture removed.");
+    try {
+      const res = await studioFetch(`/api/v1/studio/lectures/${encodeURIComponent(lectureId)}`, { method: "DELETE" });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `Failed to delete lecture (${res.status})`);
+      }
+      const updatedSections = (activeCourse.sections || []).map((sec) =>
+        sec.id === sectionId ? { ...sec, lectures: sec.lectures.filter((l) => l.id !== lectureId) } : sec
+      );
+      setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
+      showToast("Lecture removed.");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Could not delete lecture.", "error");
+    }
   };
 
   // Delete Section
   const handleDeleteSection = async (sectionId: string) => {
     if (!confirm("Delete this section and all its lectures?")) return;
-
-    if (isBackendConnected) {
-      try {
-        await studioFetch(`/api/v1/studio/sections/${sectionId}`, { method: "DELETE" });
-      } catch {
-        // fallback
-      }
+    if (!isBackendConnected) {
+      showToast("Studio backend is disconnected. Cannot delete section.", "error");
+      return;
     }
 
-    const updatedSections = (activeCourse.sections || []).filter((sec) => sec.id !== sectionId);
-    setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
-    showToast("Section removed.");
+    try {
+      const res = await studioFetch(`/api/v1/studio/sections/${encodeURIComponent(sectionId)}`, { method: "DELETE" });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `Failed to delete section (${res.status})`);
+      }
+      const updatedSections = (activeCourse.sections || []).filter((sec) => sec.id !== sectionId);
+      setCourses(courses.map((c) => (c.id === activeCourse.id ? { ...activeCourse, sections: updatedSections } : c)));
+      showToast("Section removed.");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Could not delete section.", "error");
+    }
   };
 
   if (isLoading) {
@@ -415,17 +364,18 @@ function StudioContent() {
   }
 
   return (
-    <div style={{ minHeight: "calc(100vh - 56px)", backgroundColor: "var(--bg-main)", padding: "2rem 2.5rem" }}>
+    <div style={{ minHeight: "calc(100vh - 56px)", backgroundColor: "var(--bg-main)", padding: "clamp(1rem, 3vw, 2.25rem)" }}>
       {/* Toast Notification */}
       {notification && (
         <div
+          role="status"
           style={{
             position: "fixed",
-            bottom: "2rem",
-            right: "2rem",
+            bottom: "1.5rem",
+            right: "1.5rem",
             backgroundColor: "var(--bg-surface-elevated)",
-            border: "1px solid var(--accent-emerald)",
-            color: "var(--accent-emerald)",
+            border: `1px solid ${notification.tone === "error" ? "var(--accent-rose)" : "var(--accent-emerald)"}`,
+            color: notification.tone === "error" ? "var(--accent-rose)" : "var(--accent-emerald)",
             padding: "0.75rem 1.25rem",
             borderRadius: "var(--radius-md)",
             fontWeight: 600,
@@ -434,7 +384,8 @@ function StudioContent() {
             fontSize: "0.85rem",
           }}
         >
-          ✓ {notification}
+          {notification.tone === "error" ? "⚠ " : "✓ "}
+          {notification.msg}
         </div>
       )}
 
@@ -693,7 +644,7 @@ function StudioContent() {
                       <h4 style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.75rem", color: "var(--brand-primary)" }}>
                         Add Lecture to &quot;{section.title}&quot;
                       </h4>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "0.75rem" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: "0.75rem", marginBottom: "0.75rem" }}>
                         <div>
                           <label style={{ display: "block", fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: "4px" }}>
                             Lecture Title *
@@ -883,7 +834,7 @@ function StudioContent() {
                               alignItems: "center",
                               justifyContent: "space-between",
                               padding: "0.6rem 0.85rem",
-                              backgroundColor: "rgba(9, 12, 16, 0.72)",
+                              backgroundColor: "var(--bg-surface-elevated)",
                               borderRadius: "var(--radius-sm)",
                             }}
                           >
@@ -902,7 +853,7 @@ function StudioContent() {
                             </div>
 
                             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                              {lecture.videoUrl ? (
+                              {isSafeHttpUrl(lecture.videoUrl) ? (
                                 <a
                                   href={lecture.videoUrl}
                                   target="_blank"

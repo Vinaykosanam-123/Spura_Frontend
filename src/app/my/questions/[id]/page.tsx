@@ -11,7 +11,7 @@ export default async function QuestionPage({
   const { id } = await params;
   let data: QuestionDetail;
   try {
-    data = await serverGet<QuestionDetail>(`/api/v1/me/questions/${id}`);
+    data = await serverGet<QuestionDetail>(`/api/v1/me/questions/${encodeURIComponent(id)}`);
   } catch (e) {
     if (isUnauthorized(e)) redirect('/login');
     if (isForbidden(e)) {
