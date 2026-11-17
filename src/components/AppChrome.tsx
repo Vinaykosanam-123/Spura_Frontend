@@ -304,38 +304,39 @@ function StudentShell({
 
 const SITE_NAV_ITEMS = [
   { href: '/#batch-2', label: 'Batch 2.0', match: [], cls: 'hidden xl:inline-flex' },
-  { href: '/courses', label: 'Roadmap', match: ['/courses'], cls: 'hidden sm:inline-flex' },
-  { href: '/coding', label: 'Compiler', match: ['/coding'], cls: 'inline-flex' },
-  { href: '/visualize', label: 'Visualizers', match: ['/visualize'], cls: 'inline-flex' },
-  { href: '/bank', label: '450+ Sheet', match: ['/bank'], cls: 'hidden md:inline-flex' },
+  { href: '/courses', label: 'Roadmap', match: ['/courses'], cls: 'hidden md:inline-flex' },
+  { href: '/coding', label: 'Compiler', match: ['/coding'], cls: 'hidden md:inline-flex' },
+  { href: '/visualize', label: 'Visualizers', match: ['/visualize'], cls: 'hidden md:inline-flex' },
+  { href: '/bank', label: '450+ Sheet', match: ['/bank'], cls: 'hidden lg:inline-flex' },
   { href: '/contests', label: 'Contests', match: ['/contests'], cls: 'hidden lg:inline-flex' },
 ] as const;
 
 function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boolean }) {
   const pathname = usePathname();
-  const isStaff = Boolean(
-    user?.roles?.includes('admin') ||
-      user?.roles?.includes('mentor') ||
-      user?.roles?.includes('instructor'),
-  );
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isAdmin = Boolean(user?.roles?.includes('admin'));
+  const isStaff =
+    isAdmin ||
+    Boolean(user?.roles?.includes('mentor') || user?.roles?.includes('instructor'));
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080B11]/95 backdrop-blur-md">
       <nav
-        className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2"
+        className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2"
         aria-label="Main"
       >
-        <Link href="/" className="flex items-center gap-2.5 group shrink-0" aria-label="SPURA home">
+        <Link href="/" className="flex items-center gap-2 group shrink-0" aria-label="SPURA home">
           <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-[13px] font-extrabold shadow-md shadow-amber-500/20">
             SP
           </span>
-          <span className="text-[17px] font-bold tracking-tight text-white flex items-center gap-1.5">
+          <span className="text-[16px] sm:text-[17px] font-bold tracking-tight text-white flex items-center gap-1.5">
             SPURA
             <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
               Batch 2.0
             </span>
           </span>
         </Link>
+
         <div className="flex items-center gap-1 sm:gap-1.5">
           {SITE_NAV_ITEMS.map((item) => {
             const active = item.match.some((m) => pathname === m || pathname.startsWith(`${m}/`));
@@ -369,7 +370,7 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
               <Link
                 href="/my"
                 title={`Signed in as ${user.fullName} (${user.email})`}
-                className="inline-flex h-9 items-center gap-2 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/15 text-xs font-semibold text-white transition-colors"
+                className="inline-flex h-9 items-center gap-1.5 px-2.5 sm:px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/15 text-xs font-semibold text-white transition-colors"
               >
                 <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-stone-950 text-[10px] font-extrabold">
                   {getInitials(user.fullName, user.email)}
@@ -379,27 +380,164 @@ function SiteHeader({ user, authChecked }: { user: User | null; authChecked: boo
                   {user.fullName || 'My Space'}
                 </span>
               </Link>
-              <LogoutButton />
+              <span className="hidden sm:inline-flex">
+                <LogoutButton />
+              </span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5 ml-1">
               <Link
                 href="/login"
-                className="inline-flex h-9 items-center px-3.5 rounded-xl text-sm font-semibold text-slate-200 hover:text-white border border-white/15 hover:bg-white/5 transition-colors"
+                className="inline-flex h-9 items-center px-2.5 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-200 hover:text-white border border-white/15 hover:bg-white/5 transition-colors"
               >
                 Log in
               </Link>
               <Link
                 href="/register"
-                className="glow-btn inline-flex h-9 items-center px-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 text-sm font-bold shadow-lg shadow-amber-500/25 hover:opacity-95 transition-opacity"
+                className="glow-btn inline-flex h-9 items-center px-2.5 sm:px-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 text-xs sm:text-sm font-bold shadow-lg shadow-amber-500/25 hover:opacity-95 transition-opacity"
               >
                 Sign up
               </Link>
             </div>
           )}
+
+          {/* Mobile & Tablet Hamburger Menu Button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open navigation menu"
+            className="lg:hidden ml-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-slate-200 hover:bg-white/10 text-lg"
+          >
+            ☰
+          </button>
           {!authChecked && <span className="sr-only">Checking session</span>}
         </div>
       </nav>
+
+      {/* Mobile & Tablet Drawer */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-[70]" role="dialog" aria-label="Navigation menu">
+          <div className="fixed inset-0 bg-black/70" onClick={() => setMobileMenuOpen(false)} />
+          <div className="fixed right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-[#0F1319] border-l border-white/10 p-4 flex flex-col gap-1.5 overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-xs font-extrabold">
+                  SP
+                </span>
+                <span className="font-bold text-white text-sm">SPURA Navigation</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close navigation menu"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 hover:bg-white/10"
+              >
+                ✕
+              </button>
+            </div>
+
+            {user && (
+              <div className="mb-2 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-white truncate">{user.fullName}</p>
+                  <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                    {getRoleBadge(user.roles)}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 truncate mt-0.5">{user.email}</p>
+              </div>
+            )}
+
+            <Link
+              href="/courses"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+            >
+              Course Roadmap
+            </Link>
+            <Link
+              href="/coding"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+            >
+              Coding Compiler &amp; Tracer
+            </Link>
+            <Link
+              href="/visualize"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+            >
+              11 Interactive Visualizers
+            </Link>
+            <Link
+              href="/bank"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+            >
+              450+ Company Problem Sheet
+            </Link>
+            <Link
+              href="/contests"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+            >
+              Live Contests Arena
+            </Link>
+
+            {user && (
+              <Link
+                href="/my"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/25"
+              >
+                My Study Space →
+              </Link>
+            )}
+            {isStaff && (
+              <Link
+                href="/studio"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+              >
+                Course Studio
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/5"
+              >
+                Admin Console
+              </Link>
+            )}
+
+            <div className="flex-1" />
+            <div className="pt-3 mt-3 border-t border-white/10">
+              {user ? (
+                <LogoutButton />
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="py-2.5 text-center rounded-xl text-xs font-semibold border border-white/15 text-white hover:bg-white/5"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="py-2.5 text-center rounded-xl text-xs font-bold bg-amber-500 text-stone-950"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

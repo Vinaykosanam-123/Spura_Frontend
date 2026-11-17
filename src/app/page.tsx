@@ -289,13 +289,14 @@ export default function Home() {
           borderBottom: "1px solid rgba(245, 158, 11, 0.25)",
           padding: "0.6rem 1rem",
           textAlign: "center",
-          fontSize: "0.85rem",
+          fontSize: "0.82rem",
           fontWeight: 600,
           color: "#FDE68A",
           display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "center",
-          gap: "0.75rem",
+          gap: "0.5rem 0.75rem",
         }}
       >
         <span
@@ -332,10 +333,12 @@ export default function Home() {
       <section
         style={{
           position: "relative",
-          padding: "4.5rem 1.5rem 3.5rem",
+          padding: "clamp(2.5rem, 6vw, 4.5rem) 1rem clamp(2rem, 5vw, 3.5rem)",
           maxWidth: "1200px",
+          width: "100%",
           margin: "0 auto",
           textAlign: "center",
+          overflow: "hidden",
         }}
       >
         <div
@@ -344,7 +347,7 @@ export default function Home() {
             top: "20%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "600px",
+            width: "min(600px, 100vw)",
             height: "350px",
             background: "radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(234, 88, 12, 0.03) 50%, transparent 80%)",
             filter: "blur(60px)",
@@ -503,9 +506,9 @@ export default function Home() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
               gap: "1.25rem",
-              padding: "1.75rem",
+              padding: "clamp(1.1rem, 3vw, 1.75rem)",
               backgroundColor: "rgba(15, 19, 25, 0.85)",
               borderRadius: "var(--radius-lg)",
               border: "1px solid var(--border-subtle)",
@@ -554,8 +557,9 @@ export default function Home() {
       {/* 3. INTERACTIVE VISUALIZER SHOWCASE */}
       <section
         style={{
-          padding: "4.5rem 1.5rem",
+          padding: "clamp(2.5rem, 6vw, 4.5rem) 1rem",
           maxWidth: "1200px",
+          width: "100%",
           margin: "0 auto",
         }}
       >
@@ -572,10 +576,10 @@ export default function Home() {
           >
             Visual Algorithmic Compiler
           </div>
-          <h2 style={{ fontSize: "2.3rem", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "0.85rem" }}>
+          <h2 style={{ fontSize: "clamp(1.65rem, 4vw, 2.3rem)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "0.85rem" }}>
             Don&apos;t Just Memorize Code. <span className="gradient-text">See It Run in Memory.</span>
           </h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", maxWidth: "680px", margin: "0 auto" }}>
+          <p style={{ color: "var(--text-secondary)", fontSize: "1rem", maxWidth: "680px", margin: "0 auto" }}>
             Most students fail DSA interviews because memory pointers, linked list arrows, and tree recursions are
             invisible. Our compiler transforms your code into step-by-step interactive diagrams.
           </p>
@@ -593,25 +597,27 @@ export default function Home() {
           <div
             style={{
               display: "flex",
+              flexWrap: "wrap",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: "0.75rem 1.25rem",
+              gap: "0.65rem",
+              padding: "0.75rem 1rem",
               backgroundColor: "rgba(9, 12, 16, 0.85)",
               borderBottom: "1px solid var(--border-subtle)",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <div style={{ display: "flex", gap: "6px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
+              <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
                 <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#EF4444" }} />
                 <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#F59E0B" }} />
                 <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#10B981" }} />
               </div>
-              <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>
-                Problem: Two Sum (Sorted Two Pointers Simulation)
+              <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-primary)" }}>
+                Problem: Two Sum (Two Pointers)
               </span>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
               <button
                 onClick={() => setDemoStep((s) => Math.max(1, s - 1))}
                 disabled={demoStep === 1}
@@ -624,10 +630,10 @@ export default function Home() {
                   fontWeight: 600,
                 }}
               >
-                ◀ Prev Step
+                ◀ Prev
               </button>
               <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 600 }}>
-                Step {demoStep} of 3
+                Step {demoStep}/3
               </span>
               <button
                 onClick={() => setDemoStep((s) => Math.min(3, s + 1))}
@@ -641,7 +647,7 @@ export default function Home() {
                   fontWeight: 600,
                 }}
               >
-                Next Step ▶
+                Next ▶
               </button>
             </div>
           </div>
@@ -650,12 +656,14 @@ export default function Home() {
             <div
               style={{
                 backgroundColor: "var(--bg-code)",
-                padding: "1.5rem",
+                padding: "1.1rem",
                 borderRight: "1px solid var(--border-subtle)",
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                fontSize: "0.85rem",
+                fontSize: "0.8rem",
                 lineHeight: 1.7,
                 color: "#e2e8f0",
+                overflowX: "auto",
+                minWidth: 0,
               }}
             >
               <div style={{ color: "#64748b", marginBottom: "0.5rem" }}>{"// Two Pointers on Sorted Array"}</div>
@@ -833,7 +841,7 @@ export default function Home() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
             gap: "1rem",
             marginTop: "1.5rem",
           }}
@@ -877,13 +885,14 @@ export default function Home() {
       {/* 4. WHY SPURA */}
       <section
         style={{
-          padding: "4.5rem 1.5rem",
+          padding: "clamp(2.5rem, 6vw, 4.5rem) 1rem",
           maxWidth: "1200px",
+          width: "100%",
           margin: "0 auto",
           borderTop: "1px solid var(--border-subtle)",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
           <div
             style={{
               fontSize: "0.8rem",
@@ -896,10 +905,10 @@ export default function Home() {
           >
             The SPURA Edge
           </div>
-          <h2 style={{ fontSize: "2.3rem", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "0.85rem" }}>
+          <h2 style={{ fontSize: "clamp(1.65rem, 4vw, 2.3rem)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "0.85rem" }}>
             Why Students Succeed With Batch 2.0
           </h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", maxWidth: "620px", margin: "0 auto" }}>
+          <p style={{ color: "var(--text-secondary)", fontSize: "1rem", maxWidth: "620px", margin: "0 auto" }}>
             Engineered specifically to solve the biggest pitfalls in tech interview preparation: language barriers,
             lack of memory mental models, and zero doubt support.
           </p>
@@ -908,8 +917,8 @@ export default function Home() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "1.5rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+            gap: "1.25rem",
           }}
         >
           <div className="glass-card" style={{ padding: "1.75rem" }}>
@@ -984,13 +993,14 @@ export default function Home() {
       <section
         id="curriculum"
         style={{
-          padding: "4.5rem 1.5rem",
+          padding: "clamp(2.5rem, 6vw, 4.5rem) 1rem",
           maxWidth: "1200px",
+          width: "100%",
           margin: "0 auto",
           borderTop: "1px solid var(--border-subtle)",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
           <div
             style={{
               fontSize: "0.8rem",
@@ -1003,10 +1013,10 @@ export default function Home() {
           >
             Structured 16-Week Roadmap
           </div>
-          <h2 style={{ fontSize: "2.3rem", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "0.85rem" }}>
+          <h2 style={{ fontSize: "clamp(1.65rem, 4vw, 2.3rem)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "0.85rem" }}>
             Comprehensive Syllabus Designed for Placements
           </h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", maxWidth: "660px", margin: "0 auto" }}>
+          <p style={{ color: "var(--text-secondary)", fontSize: "1rem", maxWidth: "660px", margin: "0 auto" }}>
             From absolute programming basics to advanced Graph DP and System Design.
           </p>
         </div>
@@ -1052,12 +1062,13 @@ export default function Home() {
                   backgroundColor: "var(--bg-surface)",
                   borderRadius: "var(--radius-lg)",
                   border: "1px solid var(--border-strong)",
-                  padding: "2rem",
+                  padding: "clamp(1.25rem, 3vw, 2rem)",
                   boxShadow: "var(--shadow-card)",
+                  minWidth: 0,
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                  <div>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
                     <span
                       style={{
                         fontSize: "0.75rem",
@@ -1066,7 +1077,6 @@ export default function Home() {
                         color: "#F59E0B",
                         padding: "3px 10px",
                         borderRadius: "4px",
-                        marginRight: "0.5rem",
                       }}
                     >
                       {current.weeks}
@@ -1093,7 +1103,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: "1.45rem", fontWeight: 800, marginBottom: "0.75rem", color: "#ffffff" }}>
+                <h3 style={{ fontSize: "clamp(1.2rem, 3vw, 1.45rem)", fontWeight: 800, marginBottom: "0.75rem", color: "#ffffff" }}>
                   {current.title}
                 </h3>
 
@@ -1126,7 +1136,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
+                <div style={{ marginTop: "1.75rem", display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
                   <Link
                     href="/courses"
                     style={{
@@ -1166,8 +1176,9 @@ export default function Home() {
       <section
         id="batch-2"
         style={{
-          padding: "4.5rem 1.5rem",
+          padding: "clamp(2.5rem, 6vw, 4.5rem) 1rem",
           maxWidth: "1000px",
+          width: "100%",
           margin: "0 auto",
           borderTop: "1px solid var(--border-subtle)",
         }}
@@ -1193,7 +1204,7 @@ export default function Home() {
             <span>★</span>
             <span>Batch 2.0 Official Enrollment</span>
           </div>
-          <h2 style={{ fontSize: "2.5rem", fontWeight: 900, letterSpacing: "-0.02em", marginBottom: "0.75rem" }}>
+          <h2 style={{ fontSize: "clamp(1.7rem, 4.5vw, 2.5rem)", fontWeight: 900, letterSpacing: "-0.02em", marginBottom: "0.75rem" }}>
             Invest in Your Tech Career. <span className="gradient-text">Zero Compromises.</span>
           </h2>
           <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", maxWidth: "600px", margin: "0 auto" }}>

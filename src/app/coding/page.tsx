@@ -581,37 +581,21 @@ function CodingWorkspace({
   const stacks = currentStep ? extractStacks(currentStep, heap) : [];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "calc(100vh - 64px)",
-        backgroundColor: "var(--bg-main)",
-        color: "var(--text-primary)",
-        overflow: "hidden",
-      }}
-    >
+    <div className="responsive-coding-shell">
       {/* Main 2-Pane Workspace: Left (Problem / Diagram) | Right (Editor & Console) */}
       <div className="responsive-coding-workspace">
         {/* ================= LEFT PANE: Tabs [Description] [Visual Diagram] [Submissions] ================= */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            borderRight: "1px solid var(--border-subtle)",
-            backgroundColor: "var(--bg-surface)",
-            overflow: "hidden",
-            height: "100%",
-          }}
-        >
+        <div className="responsive-coding-pane-left">
           {/* Top Tabs Bar */}
           <div
             style={{
               display: "flex",
+              flexWrap: "wrap",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "0 1rem",
-              height: "44px",
+              gap: "0.4rem",
+              padding: "0.35rem 0.75rem",
+              minHeight: "44px",
               backgroundColor: "rgba(9, 12, 16, 0.85)",
               borderBottom: "1px solid var(--border-subtle)",
             }}
@@ -1434,29 +1418,23 @@ function CodingWorkspace({
         </div>
 
         {/* ================= RIGHT PANE: Code Editor & Execution (Clean & Spacious) ================= */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            backgroundColor: "var(--bg-main)",
-            overflow: "hidden",
-          }}
-        >
+        <div className="responsive-coding-pane-right">
           {/* Editor Header Bar */}
           <div
             style={{
               display: "flex",
+              flexWrap: "wrap",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "0 1rem",
-              height: "44px",
+              gap: "0.4rem",
+              padding: "0.35rem 0.75rem",
+              minHeight: "44px",
               backgroundColor: "rgba(9, 12, 16, 0.85)",
               borderBottom: "1px solid var(--border-subtle)",
             }}
           >
             {/* Language Selector */}
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
               <select
                 value={language}
                 onChange={(e) => handleLanguageChange(e.target.value as EditorLanguage)}
@@ -1496,7 +1474,7 @@ function CodingWorkspace({
             </div>
 
             {/* Quick Actions (Run, Submit to DB & Animate) */}
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
               <button
                 onClick={handleFastRun}
                 disabled={isRunning || isSubmitting}

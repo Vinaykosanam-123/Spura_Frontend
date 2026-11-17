@@ -87,6 +87,8 @@ html {
   scroll-behavior: smooth;
   background-color: var(--bg-main);
   color: var(--text-primary);
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -96,6 +98,8 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   line-height: 1.6;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 ::selection {
@@ -192,46 +196,90 @@ body {
 /* Responsive Grids */
 .responsive-grid-2col {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 2rem;
 }
 
 .responsive-curriculum-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 320px minmax(0, 1fr);
   gap: 2rem;
   align-items: flex-start;
 }
 
 .responsive-courses-grid {
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: 340px minmax(0, 1fr);
   gap: 2rem;
   align-items: flex-start;
 }
 
+.responsive-coding-shell {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
 .responsive-coding-workspace {
   display: grid;
-  grid-template-columns: 46% 54%;
+  grid-template-columns: minmax(0, 46%) minmax(0, 54%);
   flex: 1;
   overflow: hidden;
 }
 
-@media (max-width: 900px) {
+.responsive-coding-pane-left {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface);
+  overflow: hidden;
+  height: 100%;
+  min-width: 0;
+}
+
+.responsive-coding-pane-right {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--bg-main);
+  overflow: hidden;
+  min-width: 0;
+}
+
+@media (max-width: 960px) {
   .responsive-grid-2col {
-    grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1.25rem !important;
   }
   .responsive-curriculum-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1.25rem !important;
   }
   .responsive-courses-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1.25rem !important;
+  }
+  .responsive-coding-shell {
+    height: auto !important;
+    min-height: calc(100vh - 64px);
+    overflow-y: visible !important;
   }
   .responsive-coding-workspace {
-    grid-template-columns: 1fr !important;
-    overflow-y: auto !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    overflow: visible !important;
+  }
+  .responsive-coding-pane-left {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-subtle);
+    height: auto !important;
+    min-height: 360px;
+    max-height: 60vh;
+  }
+  .responsive-coding-pane-right {
+    height: 520px !important;
+    min-height: 460px;
   }
 }
