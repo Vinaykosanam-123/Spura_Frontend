@@ -5,20 +5,10 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { CURATED_PROBLEMS, type DiagramType, type Problem } from "@/lib/problems";
 import { executeAndTrace } from "@/lib/trace/runner";
-import type { TraceResult, TraceStep } from "@/lib/trace/types";
+import type { TraceResult } from "@/lib/trace/types";
+import { VISUAL_LANGUAGES } from "@/lib/trace/types";
 import { recordActivity } from "@/lib/activity";
-import {
-  extractArraysWithPointers,
-  extractLinkedLists,
-  extractBinaryTrees,
-  extractStacks,
-  extractDictsAndSets,
-  extractFrameWatches,
-} from "@/lib/trace/diagram-parser";
-import { LinkedListDiagram } from "@/components/diagrams/LinkedListDiagram";
-import { ArrayPointersDiagram } from "@/components/diagrams/ArrayPointersDiagram";
-import { BinaryTreeDiagram } from "@/components/diagrams/BinaryTreeDiagram";
-import { StackQueueDiagram } from "@/components/diagrams/StackQueueDiagram";
+import { StepDiagramViewer } from "@/components/diagrams/StepDiagramViewer";
 
 type EditorLanguage = "python" | "javascript" | "cpp" | "java";
 
@@ -140,22 +130,47 @@ const Editor = dynamic(() => import("@monaco-editor/react"), {
   ),
 });
 
+function normalizeProblemTitle(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function findMatchingProblem(
+  list: Problem[],
+  slugOrId: string | null,
+  title: string | null
+): Problem | undefined {
+  if (slugOrId) {
+    const byId = list.find((p) => p.slug === slugOrId || p.id === slugOrId || p.dbId === slugOrId);
+    if (byId) return byId;
+  }
+  if (title) {
+    const normalized = normalizeProblemTitle(title);
+    if (normalized) {
+      return list.find((p) => normalizeProblemTitle(p.title) === normalized);
+    }
+  }
+  return undefined;
+}
+
 function CodingWorkspace({
   initialSlug,
   initialTab,
+  initialTitle,
+  initialLang,
 }: {
   initialSlug: string | null;
   initialTab: string | null;
+  initialTitle: string | null;
+  initialLang: string | null;
 }) {
   const [problemsList, setProblemsList] = useState<Problem[]>(INITIAL_PROBLEMS);
   const [selectedProblem, setSelectedProblem] = useState<Problem>(() => {
-    if (initialSlug) {
-      const found = INITIAL_PROBLEMS.find((p) => p.slug === initialSlug || p.id === initialSlug);
-      if (found) return found;
-    }
-    return INITIAL_PROBLEMS[0];
+    const found = findMatchingProblem(INITIAL_PROBLEMS, initialSlug, initialTitle);
+    return found ?? INITIAL_PROBLEMS[0];
   });
-  const [language, setLanguage] = useState<EditorLanguage>("python");
+  const [language, setLanguage] = useState<EditorLanguage>(() =>
+    initialLang && VISUAL_LANGUAGES.includes(initialLang) ? (initialLang as EditorLanguage) : "python"
+  );
   const [code, setCode] = useState<string>("");
   const [stdin, setStdin] = useState<string>(() => selectedProblem.defaultStdin);
   const [showProblemList, setShowProblemList] = useState(false);
@@ -326,8 +341,8 @@ function CodingWorkspace({
 
             const finalMerged = [...merged, CUSTOM_PLAYGROUND_PROBLEM];
             setProblemsList(finalMerged);
-            if (initialSlug) {
-              const target = finalMerged.find((p) => p.slug === initialSlug || p.id === initialSlug || p.dbId === initialSlug);
+            if (initialSlug || initialTitle) {
+              const target = findMatchingProblem(finalMerged, initialSlug, initialTitle);
               if (target) {
                 setSelectedProblem(target);
                 setCode("");
@@ -347,7 +362,7 @@ function CodingWorkspace({
     return () => {
       cancelled = true;
     };
-  }, [initialSlug]);
+  }, [initialSlug, initialTitle]);
 
   // When problem changes
   const handleProblemChange = (prob: Problem) => {
@@ -620,16 +635,6 @@ function CodingWorkspace({
       setIsSubmitting(false);
     }
   };
-
-  // Extract diagram data from current step
-  const currentStep: TraceStep | undefined = traceResult?.steps?.[currentStepIndex];
-  const heap = currentStep?.heap || {};
-  const linkedLists = currentStep ? extractLinkedLists(currentStep, heap) : [];
-  const arrays = currentStep ? extractArraysWithPointers(currentStep, heap) : [];
-  const trees = currentStep ? extractBinaryTrees(currentStep, heap) : [];
-  const stacks = currentStep ? extractStacks(currentStep, heap) : [];
-  const dictsAndSets = currentStep ? extractDictsAndSets(currentStep, heap) : [];
-  const frameWatches = currentStep ? extractFrameWatches(currentStep, heap) : [];
 
   return (
     <div className="responsive-coding-shell">
@@ -1151,324 +1156,18 @@ function CodingWorkspace({
 
           {/* TAB 2: VISUAL DIAGRAM CANVAS */}
           {activeLeftTab === "diagram" && (
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-              {/* Diagram Content Area */}
-              <div style={{ flex: 1, overflowY: "auto", padding: "1.25rem" }}>
-                {isTracing ? (
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "0.75rem", color: "var(--text-secondary)" }}>
-                    <div
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        border: "2px solid rgba(245, 158, 11, 0.25)",
-                        borderTopColor: "var(--brand-primary)",
-                        borderRadius: "50%",
-                        animation: "spin 1s linear infinite",
-                      }}
-                    />
-                    <span style={{ fontSize: "0.85rem" }}>Executing code &amp; building diagram...</span>
-                  </div>
-                ) : !traceResult || totalSteps === 0 ? (
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", textAlign: "center", gap: "0.85rem", color: "var(--text-muted)", padding: "1.5rem" }}>
-                    <div style={{ fontSize: "1.5rem", color: "var(--brand-primary)" }}>✦</div>
-                    <div style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--text-primary)" }}>
-                      {diagramNotice ? "Trace Diagnostic" : "Interactive Diagram Ready"}
-                    </div>
-                    <p style={{ fontSize: "0.85rem", maxWidth: "380px", lineHeight: 1.55, color: diagramNotice ? "#FBBF24" : "var(--text-muted)" }}>
-                      {diagramNotice ||
-                        'Click "Animate Diagram" in the editor toolbar to trace Python, JavaScript, C++, or Java—including your own custom code—line by line.'}
-                    </p>
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    {linkedLists.length > 0 && <LinkedListDiagram lists={linkedLists} />}
-                    {trees.length > 0 && <BinaryTreeDiagram trees={trees} />}
-                    {stacks.length > 0 && <StackQueueDiagram stacks={stacks} />}
-                    {arrays.length > 0 && <ArrayPointersDiagram arrays={arrays} />}
-
-                    {dictsAndSets.length > 0 && (
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "0.75rem" }}>
-                        {dictsAndSets.map((ds) => (
-                          <div
-                            key={ds.name}
-                            style={{
-                              padding: "0.75rem",
-                              borderRadius: "var(--radius-md)",
-                              backgroundColor: "rgba(255, 255, 255, 0.03)",
-                              border: "1px solid var(--border-subtle)",
-                            }}
-                          >
-                            <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--brand-primary)", marginBottom: "0.5rem", fontFamily: "var(--font-mono)" }}>
-                              {ds.kind === "dict" ? "Map / Dict" : "Set"} · {ds.name}
-                            </div>
-                            {ds.kind === "dict" ? (
-                              ds.entries.length === 0 ? (
-                                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>empty</span>
-                              ) : (
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-                                  {ds.entries.map((e, idx) => (
-                                    <span
-                                      key={idx}
-                                      style={{
-                                        fontSize: "0.75rem",
-                                        fontFamily: "var(--font-mono)",
-                                        padding: "2px 7px",
-                                        borderRadius: "6px",
-                                        backgroundColor: "rgba(245, 158, 11, 0.12)",
-                                        border: "1px solid rgba(245, 158, 11, 0.25)",
-                                        color: "var(--text-primary)",
-                                      }}
-                                    >
-                                      {e.key} → {e.value}
-                                    </span>
-                                  ))}
-                                </div>
-                              )
-                            ) : ds.items.length === 0 ? (
-                              <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>empty</span>
-                            ) : (
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-                                {ds.items.map((item, idx) => (
-                                  <span
-                                    key={idx}
-                                    style={{
-                                      fontSize: "0.75rem",
-                                      fontFamily: "var(--font-mono)",
-                                      padding: "2px 7px",
-                                      borderRadius: "6px",
-                                      backgroundColor: "rgba(16, 185, 129, 0.12)",
-                                      border: "1px solid rgba(16, 185, 129, 0.25)",
-                                      color: "var(--text-primary)",
-                                    }}
-                                  >
-                                    {item}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Universal Live Call Stack & Scalar Variables Watch (renders for any user code) */}
-                    {frameWatches.length > 0 && (
-                      <div
-                        style={{
-                          padding: "0.75rem",
-                          borderRadius: "var(--radius-md)",
-                          backgroundColor: "rgba(255, 255, 255, 0.03)",
-                          border: "1px solid var(--border-subtle)",
-                        }}
-                      >
-                        <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
-                          Call Stack &amp; Live Variables (Line {currentStep?.line})
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                          {frameWatches.map((fr, fIdx) => (
-                            <div
-                              key={`${fr.name}-${fIdx}`}
-                              style={{
-                                padding: "0.5rem 0.65rem",
-                                borderRadius: "var(--radius-sm)",
-                                backgroundColor: "var(--bg-code)",
-                                border: "1px solid var(--border-subtle)",
-                              }}
-                            >
-                              <div style={{ fontSize: "0.74rem", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-mono)", marginBottom: fr.vars.length > 0 ? "0.35rem" : 0 }}>
-                                {fr.name}() <span style={{ color: "var(--text-muted)", fontWeight: 500 }}>· line {fr.line}</span>
-                              </div>
-                              {fr.vars.length > 0 && (
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-                                  {fr.vars.map((v, vIdx) => (
-                                    <span
-                                      key={`${v.name}-${vIdx}`}
-                                      style={{
-                                        fontSize: "0.74rem",
-                                        fontFamily: "var(--font-mono)",
-                                        padding: "2px 8px",
-                                        borderRadius: "5px",
-                                        backgroundColor: "rgba(255, 255, 255, 0.05)",
-                                        border: "1px solid var(--border-subtle)",
-                                        color: "var(--text-secondary)",
-                                      }}
-                                    >
-                                      <strong style={{ color: "var(--brand-primary)" }}>{v.name}</strong> = {v.value}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {currentStep?.stdout && (
-                      <div
-                        style={{
-                          padding: "0.65rem 0.75rem",
-                          borderRadius: "var(--radius-sm)",
-                          backgroundColor: "var(--bg-code)",
-                          border: "1px solid var(--border-subtle)",
-                          fontFamily: "var(--font-mono)",
-                          fontSize: "0.75rem",
-                          color: "var(--accent-emerald)",
-                          whiteSpace: "pre-wrap",
-                        }}
-                      >
-                        <span style={{ color: "var(--text-muted)", fontWeight: 700 }}>stdout: </span>
-                        {currentStep.stdout}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Diagram Playback Controller (Clean & Minimalist at bottom of Diagram tab) */}
-              {totalSteps > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "0.6rem 1rem",
-                    backgroundColor: "var(--bg-code)",
-                    borderTop: "1px solid var(--border-subtle)",
-                    gap: "0.75rem",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-                    <button
-                      onClick={() => setCurrentStepIndex(0)}
-                      disabled={currentStepIndex === 0}
-                      title="First Step"
-                      style={{
-                        padding: "3px 6px",
-                        backgroundColor: "rgba(255, 255, 255, 0.06)",
-                        color: currentStepIndex === 0 ? "var(--text-muted)" : "var(--text-primary)",
-                        borderRadius: "4px",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                      }}
-                    >
-                      |◀
-                    </button>
-                    <button
-                      onClick={() => setCurrentStepIndex((p) => Math.max(0, p - 1))}
-                      disabled={currentStepIndex === 0}
-                      title="Previous Step"
-                      style={{
-                        padding: "3px 8px",
-                        backgroundColor: "rgba(255, 255, 255, 0.06)",
-                        color: currentStepIndex === 0 ? "var(--text-muted)" : "var(--text-primary)",
-                        borderRadius: "4px",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                      }}
-                    >
-                      ◀
-                    </button>
-                    <button
-                      onClick={() => setIsPlaying(!isPlaying)}
-                      style={{
-                        padding: "3px 12px",
-                        backgroundColor: isPlaying ? "var(--accent-amber)" : "var(--brand-primary)",
-                        color: "#090C10",
-                        borderRadius: "4px",
-                        fontSize: "0.75rem",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {isPlaying ? "Pause" : "Play"}
-                    </button>
-                    <button
-                      onClick={() => setCurrentStepIndex((p) => Math.min(totalSteps - 1, p + 1))}
-                      disabled={currentStepIndex >= totalSteps - 1}
-                      title="Next Step"
-                      style={{
-                        padding: "3px 8px",
-                        backgroundColor: "rgba(255, 255, 255, 0.06)",
-                        color: currentStepIndex >= totalSteps - 1 ? "var(--text-muted)" : "var(--text-primary)",
-                        borderRadius: "4px",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                      }}
-                    >
-                      ▶
-                    </button>
-                    <button
-                      onClick={() => setCurrentStepIndex(totalSteps - 1)}
-                      disabled={currentStepIndex >= totalSteps - 1}
-                      title="Last Step"
-                      style={{
-                        padding: "3px 6px",
-                        backgroundColor: "rgba(255, 255, 255, 0.06)",
-                        color: currentStepIndex >= totalSteps - 1 ? "var(--text-muted)" : "var(--text-primary)",
-                        borderRadius: "4px",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                      }}
-                    >
-                      ▶|
-                    </button>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, maxWidth: "260px" }}>
-                    <input
-                      type="range"
-                      min={0}
-                      max={Math.max(0, totalSteps - 1)}
-                      value={currentStepIndex}
-                      onChange={(e) => setCurrentStepIndex(Number(e.target.value))}
-                      style={{ flex: 1, accentColor: "var(--brand-primary)", cursor: "pointer" }}
-                    />
-                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", minWidth: "50px", textAlign: "right" }}>
-                      {currentStepIndex + 1}/{totalSteps}
-                    </span>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-                    {[
-                      { label: "0.5x", ms: 1100 },
-                      { label: "1x", ms: 650 },
-                      { label: "2x", ms: 300 },
-                    ].map((opt) => (
-                      <button
-                        key={opt.label}
-                        type="button"
-                        onClick={() => setPlaybackSpeed(opt.ms)}
-                        style={{
-                          padding: "2px 6px",
-                          borderRadius: "4px",
-                          fontSize: "0.7rem",
-                          fontWeight: 600,
-                          backgroundColor: playbackSpeed === opt.ms ? "rgba(245, 158, 11, 0.2)" : "transparent",
-                          color: playbackSpeed === opt.ms ? "#FBBF24" : "var(--text-muted)",
-                        }}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {currentStep && (
-                    <span
-                      style={{
-                        fontSize: "0.7rem",
-                        padding: "2px 6px",
-                        borderRadius: "3px",
-                        backgroundColor: "rgba(245, 158, 11, 0.15)",
-                        color: "var(--brand-primary)",
-                        fontWeight: 600,
-                      }}
-                    >
-                      Line {currentStep.line}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
+            <StepDiagramViewer
+              traceResult={traceResult}
+              isTracing={isTracing}
+              diagramNotice={diagramNotice}
+              currentStepIndex={currentStepIndex}
+              onStepChange={setCurrentStepIndex}
+              isPlaying={isPlaying}
+              onTogglePlay={() => setIsPlaying((p) => !p)}
+              playbackSpeed={playbackSpeed}
+              onPlaybackSpeedChange={setPlaybackSpeed}
+              fillHeight
+            />
           )}
 
           {/* TAB 3: SUBMISSIONS */}
@@ -1850,7 +1549,17 @@ function CodingPageContent() {
   const searchParams = useSearchParams();
   const initialSlug = searchParams.get("problem");
   const initialTab = searchParams.get("tab");
-  return <CodingWorkspace key={`${initialSlug ?? ""}:${initialTab ?? ""}`} initialSlug={initialSlug} initialTab={initialTab} />;
+  const initialTitle = searchParams.get("title");
+  const initialLang = searchParams.get("lang");
+  return (
+    <CodingWorkspace
+      key={`${initialSlug ?? ""}:${initialTitle ?? ""}:${initialLang ?? ""}:${initialTab ?? ""}`}
+      initialSlug={initialSlug}
+      initialTab={initialTab}
+      initialTitle={initialTitle}
+      initialLang={initialLang}
+    />
+  );
 }
 
 export default function CodingPage() {

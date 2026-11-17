@@ -62,6 +62,14 @@ export default function BankRow({ q }: { q: BankRowQ }) {
         <span className="hidden sm:block shrink-0" title={`${q.maxFrequency} max frequency`}>
           <FreqBars value={q.maxFrequency} />
         </span>
+        <Link
+          href={`/coding?problem=${encodeURIComponent(q.slug || q.id)}&title=${encodeURIComponent(q.title)}&tab=diagram`}
+          title={`Open ${q.title} in interactive visualizer`}
+          className="hidden sm:inline-flex items-center gap-1 shrink-0 rounded-full border border-stone-200 dark:border-white/10 px-2.5 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300 hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+        >
+          <span aria-hidden>⚡</span>
+          <span>Visualize</span>
+        </Link>
       </div>
       {q.companies.length > 0 && (
         <div className="mt-1.5 ml-7 flex flex-wrap items-center gap-1.5">

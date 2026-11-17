@@ -5,6 +5,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api, type ApiError } from '@/lib/api';
 import { recordActivity } from '@/lib/activity';
+import { executeAndTrace } from '@/lib/trace/runner';
+import { VISUAL_LANGUAGES, type TraceResult, type VisualLanguage } from '@/lib/trace/types';
+import { StepDiagramViewer } from '@/components/diagrams/StepDiagramViewer';
 
 type Sample = { id: string; stdin: string; expected: string };
 type RunResult = {
@@ -50,20 +53,46 @@ export default function PracticePage() {
   const [taggedCompanies, setTaggedCompanies] = useState<Array<{ slug: string; name: string; frequency: number }>>([]);
   const [revealedHints, setRevealedHints] = useState(0);
   const [error, setError] = useState('');
+  const [traceResult, setTraceResult] = useState<TraceResult | null>(null);
+  const [tracing, setTracing] = useState(false);
+  const [traceNotice, setTraceNotice] = useState('');
+  const [stepIndex, setStepIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(650);
+  const [showDiagram, setShowDiagram] = useState(false);
   const router = useRouter();
   const [pollTimeout, setPollTimeout] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const playTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollCountRef = useRef(0);
   const resultRef = useRef<HTMLDivElement | null>(null);
   const MAX_POLLS = 50;
 
   const passedCount = runResults.filter((r) => r.passed).length;
+  const totalTraceSteps = traceResult?.steps?.length || 0;
 
   useEffect(() => {
-    if (runResults.length > 0 || submission || analysis) {
+    if (runResults.length > 0 || submission || analysis || tracing) {
       resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-  }, [runResults, submission, analysis]);
+  }, [runResults, submission, analysis, tracing]);
+
+  useEffect(() => {
+    if (isPlaying && totalTraceSteps > 0) {
+      playTimerRef.current = setTimeout(() => {
+        if (stepIndex < totalTraceSteps - 1) {
+          setStepIndex((prev) => prev + 1);
+        } else {
+          setIsPlaying(false);
+        }
+      }, playbackSpeed);
+    } else if (playTimerRef.current) {
+      clearTimeout(playTimerRef.current);
+    }
+    return () => {
+      if (playTimerRef.current) clearTimeout(playTimerRef.current);
+    };
+  }, [isPlaying, stepIndex, totalTraceSteps, playbackSpeed]);
 
   useEffect(() => {
     api.questionDetail(questionId)
@@ -190,6 +219,41 @@ export default function PracticePage() {
     }
   }, [questionId, language, code, router]);
 
+  const handleAnimate = useCallback(async () => {
+    setShowDiagram(true);
+    setTraceNotice('');
+    setTraceResult(null);
+    setStepIndex(0);
+    setIsPlaying(false);
+
+    if (!code.trim()) {
+      setTraceNotice('Write your solution in the editor above first, then click "Animate Diagram" to step through variables and data structures.');
+      return;
+    }
+    if (!VISUAL_LANGUAGES.includes(language)) {
+      setTraceNotice(`Step-by-step visualization supports Python, JavaScript, C++, and Java (got ${language}).`);
+      return;
+    }
+
+    setTracing(true);
+    try {
+      const res = await executeAndTrace(language as VisualLanguage, code, samples[0]?.stdin ?? '', { trace: true });
+      setTraceResult(res);
+      recordActivity({ minutes: 1 });
+      if (res.error && (!res.steps || res.steps.length === 0)) {
+        setTraceNotice(res.error.message);
+      } else if (!res.steps || res.steps.length === 0) {
+        setTraceNotice('Execution finished with no traceable step events inside functions.');
+      } else if (res.steps.length > 1) {
+        setIsPlaying(true);
+      }
+    } catch (e: unknown) {
+      setTraceNotice(e instanceof Error ? e.message : 'Diagram execution failed');
+    } finally {
+      setTracing(false);
+    }
+  }, [code, language, samples]);
+
   if (error && !question) {
     return (
       <main className="max-w-4xl mx-auto px-4 py-16 text-center">
@@ -216,11 +280,22 @@ export default function PracticePage() {
   const constraints = (version?.constraintsText as string) ?? '';
   const timeLimit = (version?.timeLimitMs as number) ?? 2000;
 
-  const handleLanguageChange = (lang: string) => {
-    setLanguage(lang);
+  const resetTrace = () => {
+    setTraceResult(null);
+    setTraceNotice('');
+    setStepIndex(0);
+    setIsPlaying(false);
   };
 
-  const clearCode = () => setCode('');
+  const handleLanguageChange = (lang: string) => {
+    setLanguage(lang);
+    resetTrace();
+  };
+
+  const clearCode = () => {
+    setCode('');
+    resetTrace();
+  };
 
   return (
     <main className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 py-6">
@@ -229,7 +304,7 @@ export default function PracticePage() {
           <h1 className="text-2xl font-semibold text-stone-900 dark:text-stone-50">{questionTitle}</h1>
           <div className="flex items-center gap-3">
             <Link
-              href={`/coding?title=${encodeURIComponent(questionTitle)}&lang=${encodeURIComponent(language)}`}
+              href={`/coding?problem=${encodeURIComponent((question.slug as string) || questionId)}&title=${encodeURIComponent(questionTitle)}&lang=${encodeURIComponent(language)}&tab=diagram`}
               className="px-3.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
               <span>⚡</span>
@@ -332,6 +407,15 @@ export default function PracticePage() {
             </button>
             <div className="flex-1" />
             <button
+              type="button"
+              onClick={handleAnimate}
+              disabled={running || submitting || tracing}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/12 hover:bg-amber-500 hover:text-stone-950 px-4 text-sm font-semibold text-amber-600 dark:text-amber-400 transition-colors disabled:opacity-50"
+            >
+              <span aria-hidden>{tracing ? '⏳' : '⚡'}</span>
+              {tracing ? 'Tracing…' : 'Animate Diagram'}
+            </button>
+            <button
               onClick={handleRun}
               disabled={running || submitting || !code.trim()}
               className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-white/10 px-5 text-sm font-medium text-stone-700 dark:text-slate-200 hover:bg-stone-100 dark:hover:bg-white/5 disabled:opacity-50"
@@ -387,6 +471,49 @@ export default function PracticePage() {
           )}
 
           <div ref={resultRef} className="scroll-mt-24 space-y-4">
+            {(showDiagram || tracing) && (
+              <div className="card-calm rounded-2xl overflow-hidden border border-stone-200 dark:border-white/10">
+                <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-stone-200 dark:border-white/10 bg-stone-50 dark:bg-white/[0.02]">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-amber-500 text-sm" aria-hidden>⚡</span>
+                    <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-50">
+                      Visual Diagram &amp; Execution Tracer
+                    </h2>
+                    {traceResult?.steps?.[stepIndex] && (() => {
+                      const activeLineNum = traceResult.steps[stepIndex].line;
+                      const activeLineText = code.split('\n')[activeLineNum - 1]?.trim();
+                      return (
+                        <span className="hidden sm:inline-block truncate max-w-[340px] text-xs font-mono px-2 py-0.5 rounded bg-stone-200/80 dark:bg-white/[0.06] text-stone-700 dark:text-stone-300">
+                          L{activeLineNum}{activeLineText ? `: ${activeLineText}` : ''}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsPlaying(false);
+                      setShowDiagram(false);
+                    }}
+                    className="text-xs text-stone-500 hover:text-stone-900 dark:hover:text-white px-2 py-1 rounded"
+                  >
+                    Hide
+                  </button>
+                </div>
+                <StepDiagramViewer
+                  traceResult={traceResult}
+                  isTracing={tracing}
+                  diagramNotice={traceNotice}
+                  currentStepIndex={stepIndex}
+                  onStepChange={setStepIndex}
+                  isPlaying={isPlaying}
+                  onTogglePlay={() => setIsPlaying((p) => !p)}
+                  playbackSpeed={playbackSpeed}
+                  onPlaybackSpeedChange={setPlaybackSpeed}
+                />
+              </div>
+            )}
+
             {submission && (
               <div className="card-calm rounded-2xl p-5 border border-stone-300 dark:border-stone-700">
                 <div className="flex items-center gap-3">

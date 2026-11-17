@@ -46,6 +46,14 @@ function PracticeList({ practice }: { practice: PracticeQ[] }) {
                   {q.frequency} reports
                 </span>
               </div>
+              <Link
+                href={`/coding?problem=${encodeURIComponent(q.slug || q.id)}&title=${encodeURIComponent(q.title)}&tab=diagram`}
+                title={`Open ${q.title} in interactive visualizer`}
+                className="hidden sm:inline-flex items-center gap-1 shrink-0 rounded-full border border-stone-200 dark:border-white/10 px-2.5 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300 hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+              >
+                <span aria-hidden>⚡</span>
+                <span>Visualize</span>
+              </Link>
               <Link href={`/practice/${q.id}`} className="shrink-0 text-sm text-stone-400 hover:text-amber-400 transition-colors" aria-label={`Practice ${q.title}`}>→</Link>
             </div>
           </li>
