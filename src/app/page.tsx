@@ -1318,10 +1318,6 @@ export default function Home() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
-                  <span>450+ Curated SDE Placement Questions (Blind 75 &amp; Striver)</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ color: "#34D399", fontWeight: 700 }}>✓</span>
                   <span>In-Browser Compiler with Real-Time Diagram Visualizer</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

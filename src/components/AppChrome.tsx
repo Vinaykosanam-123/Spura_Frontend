@@ -9,9 +9,16 @@ import { api } from '@/lib/api';
 import type { User } from '@/lib/types';
 
 const STUDENT_PREFIXES = ['/my', '/practice', '/bank', '/contests'];
+const WORKSPACE_WHEN_AUTH_PREFIXES = ['/visualize', '/coding'];
 
 function isStudentPath(path: string): boolean {
   return STUDENT_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+}
+
+function isStudentWorkspace(path: string, user: User | null): boolean {
+  if (isStudentPath(path)) return true;
+  if (!user) return false;
+  return WORKSPACE_WHEN_AUTH_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
 const TABS = [
@@ -53,6 +60,30 @@ function StudentShell({
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarHidden, setSidebarHidden] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('spura_sidebar_hidden') === 'true') {
+        queueMicrotask(() => setSidebarHidden(true));
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarHidden((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('spura_sidebar_hidden', String(next));
+      } catch {
+        // ignore storage errors
+      }
+      return next;
+    });
+  };
+
   const linkCls = (active: boolean) =>
     `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
       active
@@ -73,53 +104,28 @@ function StudentShell({
     <div className="min-h-full flex flex-col bg-[#090C10] text-slate-50">
       {/* Desktop top header */}
       <header className="hidden md:block sticky top-0 z-50 border-b border-white/10 bg-[#080B11]/90 backdrop-blur-md">
-        <nav className="px-6 h-16 flex items-center gap-4" aria-label="Brand">
+        <nav className="px-4 lg:px-6 h-16 flex items-center gap-3" aria-label="Workspace top bar">
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            aria-expanded={!sidebarHidden}
+            aria-controls="student-sidebar"
+            aria-label={sidebarHidden ? 'Show sidebar' : 'Hide sidebar'}
+            title={sidebarHidden ? 'Show sidebar' : 'Hide sidebar'}
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-2.5 text-xs font-medium text-slate-200 hover:border-amber-500/40 hover:text-white transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M9 3v18" />
+            </svg>
+            <span className="hidden sm:inline">{sidebarHidden ? 'Show sidebar' : 'Hide sidebar'}</span>
+          </button>
           <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label="SPURA home">
             <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br from-amber-400 to-orange-500 text-stone-950 text-[13px] font-extrabold shadow-md shadow-amber-500/20">
               SP
             </span>
             <span className="text-[16px] font-bold tracking-tight text-white">SPURA</span>
           </Link>
-          <div className="hidden lg:flex items-center gap-1 ml-4 pl-4 border-l border-white/10 text-xs font-medium">
-            <Link
-              href="/courses"
-              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
-            >
-              Roadmap
-            </Link>
-            <Link
-              href="/coding"
-              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-white/5 transition-colors"
-            >
-              Coding Compiler
-            </Link>
-            <Link
-              href="/visualize"
-              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-white/5 transition-colors"
-            >
-              11 Visualizers
-            </Link>
-            <Link
-              href="/bank"
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
-                pathname.startsWith('/bank')
-                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              450+ Sheet
-            </Link>
-            <Link
-              href="/contests"
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
-                pathname.startsWith('/contests')
-                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Contests
-            </Link>
-          </div>
           <div className="flex-1" />
           <ThemeToggle />
           {user ? (
@@ -261,41 +267,50 @@ function StudentShell({
           </div>
         )}
         {/* Desktop left sidebar */}
-        <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-white/10 bg-[#0F1319]/90 sticky top-16 h-[calc(100vh-4rem)] p-4 gap-1 overflow-y-auto">
-          <nav className="flex flex-col gap-1" aria-label="Student">
-            {TABS.map((t) => (
+        {!sidebarHidden && (
+          <aside
+            id="student-sidebar"
+            className="hidden md:flex w-60 shrink-0 flex-col border-r border-white/10 bg-[#0F1319]/90 sticky top-16 h-[calc(100vh-4rem)] p-4 gap-1 overflow-y-auto"
+          >
+            <nav className="flex flex-col gap-1" aria-label="Student">
+              {TABS.map((t) => (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  aria-current={isActive(t) ? 'page' : undefined}
+                  className={linkCls(isActive(t))}
+                >
+                  {t.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-1">
+              <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                Interactive Labs
+              </p>
               <Link
-                key={t.href}
-                href={t.href}
-                aria-current={isActive(t) ? 'page' : undefined}
-                className={linkCls(isActive(t))}
+                href="/coding"
+                aria-current={pathname === '/coding' || pathname.startsWith('/coding/') ? 'page' : undefined}
+                className={linkCls(pathname === '/coding' || pathname.startsWith('/coding/'))}
               >
-                {t.label}
+                Coding Compiler
               </Link>
-            ))}
-          </nav>
-          <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-1">
-            <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Interactive Labs
-            </p>
-            <Link href="/coding" className={linkCls(false)}>
-              Coding Compiler
-            </Link>
-            <Link href="/courses" className={linkCls(false)}>
-              Course Roadmap
-            </Link>
-            {isStaff && (
-              <Link href="/studio" className={linkCls(pathname.startsWith('/studio'))}>
-                Course Studio
+              <Link href="/courses" className={linkCls(false)}>
+                Course Roadmap
               </Link>
-            )}
-            {isAdmin && (
-              <Link href="/admin" className={linkCls(pathname.startsWith('/admin'))}>
-                Admin Console
-              </Link>
-            )}
-          </div>
-        </aside>
+              {isStaff && (
+                <Link href="/studio" className={linkCls(pathname.startsWith('/studio'))}>
+                  Course Studio
+                </Link>
+              )}
+              {isAdmin && (
+                <Link href="/admin" className={linkCls(pathname.startsWith('/admin'))}>
+                  Admin Console
+                </Link>
+              )}
+            </div>
+          </aside>
+        )}
         <div className="flex-1 flex flex-col min-w-0">{children}</div>
       </div>
     </div>
@@ -668,7 +683,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
     };
   }, [pathname, router]);
 
-  if (isStudentPath(pathname)) {
+  if (isStudentWorkspace(pathname, user)) {
     return (
       <StudentShell user={user} authChecked={authChecked}>
         {children}

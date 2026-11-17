@@ -20,7 +20,7 @@ const HIGHLIGHTS = [
   },
   {
     title: '450+ Company-Tagged Sheet',
-    detail: 'Blind 75, Striver, and FAANG OA problems with multi-language C++, Java, JS & Python judge.',
+    detail: 'Structured topic tracks and FAANG OA problems with multi-language C++, Java, JS & Python judge.',
   },
   {
     title: 'Live Cohort & Mock Contests',
