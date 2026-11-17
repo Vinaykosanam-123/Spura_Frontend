@@ -12,6 +12,8 @@ import {
   extractLinkedLists,
   extractBinaryTrees,
   extractStacks,
+  extractDictsAndSets,
+  extractFrameWatches,
 } from "@/lib/trace/diagram-parser";
 import { LinkedListDiagram } from "@/components/diagrams/LinkedListDiagram";
 import { ArrayPointersDiagram } from "@/components/diagrams/ArrayPointersDiagram";
@@ -78,11 +80,107 @@ function formatTopicLabel(topic: string): string {
     .join(" ");
 }
 
+const CUSTOM_PLAYGROUND_PROBLEM: Problem = {
+  id: "custom-playground",
+  slug: "custom-playground",
+  title: "Custom Code Playground",
+  difficulty: "Easy",
+  topic: "Freeform Sandbox",
+  acceptance: "100%",
+  companies: [],
+  diagramType: "graph",
+  description:
+    "Write any Python 3, JavaScript, C++, or Java code from scratch below and click \"Animate Diagram\" to trace your own variables, pointers, arrays, stacks, queues, maps, linked lists, trees, and function calls line by line.",
+  examples: [
+    { input: "stdin: optional custom input", output: "Live line-by-line memory & structure animation" },
+  ],
+  constraints: [
+    "Supports user-defined functions, recursion, arrays/vectors, stacks, queues, maps, sets, ListNode & TreeNode",
+    "Click Animate Diagram in Python 3, JavaScript, C++ 20, or Java 21",
+  ],
+  defaultStdin: "5\n1 3 5 7 9",
+  templates: {
+    python: `def two_pointer_demo(nums, target):
+    left, right = 0, len(nums) - 1
+    while left < right:
+        s = nums[left] + nums[right]
+        if s == target:
+            return [left, right]
+        if s < target:
+            left += 1
+        else:
+            right -= 1
+    return [-1, -1]
+
+arr = [1, 3, 5, 7, 9]
+print("Indices:", two_pointer_demo(arr, 12))
+`,
+    javascript: `function twoPointerDemo(nums, target) {
+  let left = 0, right = nums.length - 1;
+  while (left < right) {
+    const sum = nums[left] + nums[right];
+    if (sum === target) return [left, right];
+    if (sum < target) left++;
+    else right--;
+  }
+  return [-1, -1];
+}
+
+const arr = [1, 3, 5, 7, 9];
+console.log("Indices:", twoPointerDemo(arr, 12));
+`,
+    cpp: `#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> twoPointerDemo(vector<int>& nums, int target) {
+    int left = 0, right = (int)nums.size() - 1;
+    while (left < right) {
+        int sum = nums[left] + nums[right];
+        if (sum == target) return {left, right};
+        if (sum < target) left++;
+        else right--;
+    }
+    return {-1, -1};
+}
+
+int main() {
+    vector<int> nums = {1, 3, 5, 7, 9};
+    auto res = twoPointerDemo(nums, 12);
+    cout << "Indices: " << res[0] << " " << res[1] << endl;
+    return 0;
+}
+`,
+    java: `import java.util.*;
+
+public class Main {
+    public static int[] twoPointerDemo(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int sum = nums[left] + nums[right];
+            if (sum == target) return new int[]{left, right};
+            if (sum < target) left++;
+            else right--;
+        }
+        return new int[]{-1, -1};
+    }
+
+    public static void main(String[] args) {
+        int[] nums = {1, 3, 5, 7, 9};
+        System.out.println("Indices: " + Arrays.toString(twoPointerDemo(nums, 12)));
+    }
+}
+`,
+  },
+};
+
+const INITIAL_PROBLEMS: Problem[] = [...CURATED_PROBLEMS, CUSTOM_PLAYGROUND_PROBLEM];
+
 function buildDefaultTemplates(title: string): Problem["templates"] {
   return {
     python: `import sys\n\n# ${title}\ndef solve():\n    lines = [line.strip() for line in sys.stdin.read().splitlines() if line.strip()]\n    if not lines:\n        return\n    # Write your solution below\n    print(lines[0])\n\nif __name__ == "__main__":\n    solve()\n`,
     javascript: `const fs = require("fs");\n\n// ${title}\nfunction solve() {\n  const lines = fs.readFileSync(0, "utf8").trim().split(/\\r?\\n/).filter(Boolean);\n  if (lines.length === 0) return;\n  // Write your solution below\n  console.log(lines[0]);\n}\n\nsolve();\n`,
-    cpp: `#include <bits/stdc++.h>\nusing namespace std;\n\n// ${title}\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    string line;\n    if (getline(cin, line)) {\n        cout << line << "\\n";\n    }\n    return 0;\n}\n`,
+    cpp: `#include <iostream>\n#include <string>\n#include <vector>\nusing namespace std;\n\n// ${title}\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    string line;\n    if (getline(cin, line)) {\n        cout << line << "\\n";\n    }\n    return 0;\n}\n`,
     java: `import java.util.*;\n\n// ${title}\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n        sc.close();\n    }\n}\n`,
   };
 }
@@ -115,13 +213,13 @@ function CodingWorkspace({
   initialSlug: string | null;
   initialTab: string | null;
 }) {
-  const [problemsList, setProblemsList] = useState<Problem[]>(CURATED_PROBLEMS);
+  const [problemsList, setProblemsList] = useState<Problem[]>(INITIAL_PROBLEMS);
   const [selectedProblem, setSelectedProblem] = useState<Problem>(() => {
     if (initialSlug) {
-      const found = CURATED_PROBLEMS.find((p) => p.slug === initialSlug || p.id === initialSlug);
+      const found = INITIAL_PROBLEMS.find((p) => p.slug === initialSlug || p.id === initialSlug);
       if (found) return found;
     }
-    return CURATED_PROBLEMS[0];
+    return INITIAL_PROBLEMS[0];
   });
   const [language, setLanguage] = useState<EditorLanguage>("python");
   const [code, setCode] = useState<string>(() => selectedProblem.templates.python);
@@ -292,17 +390,18 @@ function CodingWorkspace({
               });
             }
 
-            setProblemsList(merged);
+            const finalMerged = [...merged, CUSTOM_PLAYGROUND_PROBLEM];
+            setProblemsList(finalMerged);
             if (initialSlug) {
-              const target = merged.find((p) => p.slug === initialSlug || p.id === initialSlug || p.dbId === initialSlug);
+              const target = finalMerged.find((p) => p.slug === initialSlug || p.id === initialSlug || p.dbId === initialSlug);
               if (target) {
                 setSelectedProblem(target);
                 setCode(target.templates.python);
                 setStdin(target.defaultStdin);
                 void hydrateProblemFromDb(target);
               }
-            } else if (merged[0]?.dbId) {
-              setSelectedProblem((curr) => (curr.slug === merged[0].slug ? { ...curr, dbId: merged[0].dbId } : curr));
+            } else if (finalMerged[0]?.dbId) {
+              setSelectedProblem((curr) => (curr.slug === finalMerged[0].slug ? { ...curr, dbId: finalMerged[0].dbId } : curr));
             }
           }
         }
@@ -414,8 +513,9 @@ function CodingWorkspace({
     ]);
   };
 
-  const runTraceForLanguage = async (lang: "python" | "javascript", source: string) => {
+  const runTraceForLanguage = async (lang: EditorLanguage, source: string) => {
     setDiagramNotice("");
+    setIsPlaying(false);
     setIsTracing(true);
     setIsRunning(true);
     setActiveLeftTab("diagram");
@@ -432,10 +532,20 @@ function CodingWorkspace({
       setOutputStderr(res.error ? res.error.message : "");
       setRunVerdict(verdict);
       recordRun(lang, verdict, res.steps?.length || 0, elapsed);
+      if (res.error && (!res.steps || res.steps.length === 0)) {
+        setDiagramNotice(res.error.message);
+        setShowConsole(true);
+        setConsoleTab("result");
+      } else if (!res.steps || res.steps.length === 0) {
+        setDiagramNotice("Execution finished with no traceable step events inside functions.");
+      } else if (res.steps.length > 1) {
+        setIsPlaying(true);
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setOutputStderr(msg);
       setRunVerdict("Error");
+      setDiagramNotice(msg);
       recordRun(lang, "Error", 0, null);
     } finally {
       setIsTracing(false);
@@ -444,14 +554,6 @@ function CodingWorkspace({
   };
 
   const handleRunAndAnimate = async () => {
-    if (language !== "python" && language !== "javascript") {
-      setActiveLeftTab("diagram");
-      setDiagramNotice(
-        `Live step-by-step diagram tracing currently executes Python 3 or JavaScript. Click "Run" to execute ${language.toUpperCase()} output in the console, or switch to Python 3 / JavaScript to watch memory pointers step.`
-      );
-      return;
-    }
-
     await runTraceForLanguage(language, code);
   };
 
@@ -579,6 +681,8 @@ function CodingWorkspace({
   const arrays = currentStep ? extractArraysWithPointers(currentStep, heap) : [];
   const trees = currentStep ? extractBinaryTrees(currentStep, heap) : [];
   const stacks = currentStep ? extractStacks(currentStep, heap) : [];
+  const dictsAndSets = currentStep ? extractDictsAndSets(currentStep, heap) : [];
+  const frameWatches = currentStep ? extractFrameWatches(currentStep, heap) : [];
 
   return (
     <div className="responsive-coding-shell">
@@ -734,6 +838,24 @@ function CodingWorkspace({
                 }}
               >
                 ›
+              </button>
+              <button
+                type="button"
+                onClick={() => handleProblemChange(CUSTOM_PLAYGROUND_PROBLEM)}
+                title="Write & animate your own custom code"
+                style={{
+                  backgroundColor: selectedProblem.id === CUSTOM_PLAYGROUND_PROBLEM.id ? "rgba(245, 158, 11, 0.18)" : "#161B24",
+                  color: selectedProblem.id === CUSTOM_PLAYGROUND_PROBLEM.id ? "#FBBF24" : "#E5E7EB",
+                  border: selectedProblem.id === CUSTOM_PLAYGROUND_PROBLEM.id ? "1px solid #F59E0B" : "1px solid #262C36",
+                  padding: "3px 8px",
+                  borderRadius: "var(--radius-sm)",
+                  fontSize: "0.72rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                ✎ Custom Code
               </button>
 
               {showProblemList && (
@@ -1103,58 +1225,153 @@ function CodingWorkspace({
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", textAlign: "center", gap: "0.85rem", color: "var(--text-muted)", padding: "1.5rem" }}>
                     <div style={{ fontSize: "1.5rem", color: "var(--brand-primary)" }}>✦</div>
                     <div style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--text-primary)" }}>
-                      {diagramNotice ? "Python 3 / JavaScript Diagram Tracer" : "Interactive Diagram Ready"}
+                      {diagramNotice ? "Trace Diagnostic" : "Interactive Diagram Ready"}
                     </div>
-                    <p style={{ fontSize: "0.85rem", maxWidth: "360px", lineHeight: 1.55, color: diagramNotice ? "#FDE68A" : "var(--text-muted)" }}>
+                    <p style={{ fontSize: "0.85rem", maxWidth: "380px", lineHeight: 1.55, color: diagramNotice ? "#FBBF24" : "var(--text-muted)" }}>
                       {diagramNotice ||
-                        'Click "Animate Diagram" in the editor toolbar to run your solution and see the data structure animate step by step.'}
+                        'Click "Animate Diagram" in the editor toolbar to trace Python, JavaScript, C++, or Java—including your own custom code—line by line.'}
                     </p>
-                    {diagramNotice && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const pyTemplate = selectedProblem.templates.python;
-                          setLanguage("python");
-                          setCode(pyTemplate);
-                          void runTraceForLanguage("python", pyTemplate);
-                        }}
-                        style={{
-                          padding: "0.5rem 1rem",
-                          background: "var(--brand-gradient)",
-                          color: "#090C10",
-                          borderRadius: "var(--radius-sm)",
-                          fontSize: "0.8rem",
-                          fontWeight: 700,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Switch to Python 3 &amp; Animate →
-                      </button>
-                    )}
                   </div>
                 ) : (
-                  <div>
-                    {selectedProblem.diagramType === "linked_list" && (
-                      <LinkedListDiagram lists={linkedLists} />
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {linkedLists.length > 0 && <LinkedListDiagram lists={linkedLists} />}
+                    {trees.length > 0 && <BinaryTreeDiagram trees={trees} />}
+                    {stacks.length > 0 && <StackQueueDiagram stacks={stacks} />}
+                    {arrays.length > 0 && <ArrayPointersDiagram arrays={arrays} />}
+
+                    {dictsAndSets.length > 0 && (
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "0.75rem" }}>
+                        {dictsAndSets.map((ds) => (
+                          <div
+                            key={ds.name}
+                            style={{
+                              padding: "0.75rem",
+                              borderRadius: "var(--radius-md)",
+                              backgroundColor: "rgba(255, 255, 255, 0.03)",
+                              border: "1px solid var(--border-subtle)",
+                            }}
+                          >
+                            <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--brand-primary)", marginBottom: "0.5rem", fontFamily: "var(--font-mono)" }}>
+                              {ds.kind === "dict" ? "Map / Dict" : "Set"} · {ds.name}
+                            </div>
+                            {ds.kind === "dict" ? (
+                              ds.entries.length === 0 ? (
+                                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>empty</span>
+                              ) : (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                                  {ds.entries.map((e, idx) => (
+                                    <span
+                                      key={idx}
+                                      style={{
+                                        fontSize: "0.75rem",
+                                        fontFamily: "var(--font-mono)",
+                                        padding: "2px 7px",
+                                        borderRadius: "6px",
+                                        backgroundColor: "rgba(245, 158, 11, 0.12)",
+                                        border: "1px solid rgba(245, 158, 11, 0.25)",
+                                        color: "var(--text-primary)",
+                                      }}
+                                    >
+                                      {e.key} → {e.value}
+                                    </span>
+                                  ))}
+                                </div>
+                              )
+                            ) : ds.items.length === 0 ? (
+                              <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>empty</span>
+                            ) : (
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                                {ds.items.map((item, idx) => (
+                                  <span
+                                    key={idx}
+                                    style={{
+                                      fontSize: "0.75rem",
+                                      fontFamily: "var(--font-mono)",
+                                      padding: "2px 7px",
+                                      borderRadius: "6px",
+                                      backgroundColor: "rgba(16, 185, 129, 0.12)",
+                                      border: "1px solid rgba(16, 185, 129, 0.25)",
+                                      color: "var(--text-primary)",
+                                    }}
+                                  >
+                                    {item}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     )}
-                    {selectedProblem.diagramType === "array_pointers" && (
-                      <ArrayPointersDiagram arrays={arrays} />
+
+                    {/* Universal Live Call Stack & Scalar Variables Watch (renders for any user code) */}
+                    {frameWatches.length > 0 && (
+                      <div
+                        style={{
+                          padding: "0.75rem",
+                          borderRadius: "var(--radius-md)",
+                          backgroundColor: "rgba(255, 255, 255, 0.03)",
+                          border: "1px solid var(--border-subtle)",
+                        }}
+                      >
+                        <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+                          Call Stack &amp; Live Variables (Line {currentStep?.line})
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                          {frameWatches.map((fr, fIdx) => (
+                            <div
+                              key={`${fr.name}-${fIdx}`}
+                              style={{
+                                padding: "0.5rem 0.65rem",
+                                borderRadius: "var(--radius-sm)",
+                                backgroundColor: "var(--bg-code)",
+                                border: "1px solid var(--border-subtle)",
+                              }}
+                            >
+                              <div style={{ fontSize: "0.74rem", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-mono)", marginBottom: fr.vars.length > 0 ? "0.35rem" : 0 }}>
+                                {fr.name}() <span style={{ color: "var(--text-muted)", fontWeight: 500 }}>· line {fr.line}</span>
+                              </div>
+                              {fr.vars.length > 0 && (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                                  {fr.vars.map((v, vIdx) => (
+                                    <span
+                                      key={`${v.name}-${vIdx}`}
+                                      style={{
+                                        fontSize: "0.74rem",
+                                        fontFamily: "var(--font-mono)",
+                                        padding: "2px 8px",
+                                        borderRadius: "5px",
+                                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                                        border: "1px solid var(--border-subtle)",
+                                        color: "var(--text-secondary)",
+                                      }}
+                                    >
+                                      <strong style={{ color: "var(--brand-primary)" }}>{v.name}</strong> = {v.value}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                    {selectedProblem.diagramType === "binary_tree" && (
-                      <BinaryTreeDiagram trees={trees} />
-                    )}
-                    {selectedProblem.diagramType === "stack" && (
-                      <StackQueueDiagram stacks={stacks} />
-                    )}
-                    {selectedProblem.diagramType === "graph" && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {arrays.length > 0 && <ArrayPointersDiagram arrays={arrays} />}
-                        {stacks.length > 0 && <StackQueueDiagram stacks={stacks} />}
-                        {linkedLists.length > 0 && <LinkedListDiagram lists={linkedLists} />}
-                        {trees.length > 0 && <BinaryTreeDiagram trees={trees} />}
-                        {arrays.length === 0 && stacks.length === 0 && linkedLists.length === 0 && trees.length === 0 && (
-                          <ArrayPointersDiagram arrays={arrays} />
-                        )}
+
+                    {currentStep?.stdout && (
+                      <div
+                        style={{
+                          padding: "0.65rem 0.75rem",
+                          borderRadius: "var(--radius-sm)",
+                          backgroundColor: "var(--bg-code)",
+                          border: "1px solid var(--border-subtle)",
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.75rem",
+                          color: "var(--accent-emerald)",
+                          whiteSpace: "pre-wrap",
+                        }}
+                      >
+                        <span style={{ color: "var(--text-muted)", fontWeight: 700 }}>stdout: </span>
+                        {currentStep.stdout}
                       </div>
                     )}
                   </div>
@@ -1451,8 +1668,8 @@ function CodingWorkspace({
               >
                 <option value="python">Python 3 (Visual Trace)</option>
                 <option value="javascript">JavaScript (Visual Trace)</option>
-                <option value="cpp">C++ (G++ 14 • Fast Run)</option>
-                <option value="java">Java (JDK 21 • Fast Run)</option>
+                <option value="cpp">C++ 20 (Visual Trace)</option>
+                <option value="java">Java 21 (Visual Trace)</option>
               </select>
 
               <button

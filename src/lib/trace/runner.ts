@@ -1,6 +1,6 @@
 import { runJavaScript } from "./js-runtime";
 import { PYTHON_TRACER } from "./python-tracer";
-import type { TraceResult } from "./types";
+import type { TraceResult, TraceStep } from "./types";
 
 interface PyodideInstance {
   globals: {
@@ -110,21 +110,27 @@ export async function executeAndTrace(
 
   if (language === "cpp" || language === "java") {
     try {
-      options.onProgress?.(`Compiling & running ${language.toUpperCase()}...`);
+      options.onProgress?.(
+        trace
+          ? `Compiling & tracing ${language.toUpperCase()}...`
+          : `Compiling & running ${language.toUpperCase()}...`
+      );
       const res = await fetch("/api/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language, code: sourceCode, stdin }),
+        body: JSON.stringify({ language, code: sourceCode, stdin, trace }),
       });
       const data = (await res.json()) as {
         stdout?: string;
+        steps?: TraceStep[];
+        truncated?: boolean;
         error?: { message: string; line?: number } | null;
       };
       return {
-        steps: [],
+        steps: Array.isArray(data.steps) ? data.steps : [],
         stdout: data.stdout ?? "",
         error: data.error ?? null,
-        truncated: false,
+        truncated: Boolean(data.truncated),
       };
     } catch (err: unknown) {
       return {

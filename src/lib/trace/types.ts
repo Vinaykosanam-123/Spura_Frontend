@@ -36,5 +36,5 @@ export type TraceResult = {
   truncated: boolean;
 };
 
-export type VisualLanguage = "python" | "javascript";
-export const VISUAL_LANGUAGES: readonly string[] = ["python", "javascript"];
+export type VisualLanguage = "python" | "javascript" | "cpp" | "java";
+export const VISUAL_LANGUAGES: readonly string[] = ["python", "javascript", "cpp", "java"];

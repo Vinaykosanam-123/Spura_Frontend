@@ -57,6 +57,19 @@ export interface DiagramStack {
   items: string[];
 }
 
+export interface DiagramDictOrSet {
+  name: string;
+  kind: "dict" | "set";
+  entries: Array<{ key: string; value: string }>;
+  items: string[];
+}
+
+export interface DiagramFrameWatch {
+  name: string;
+  line: number;
+  vars: Array<{ name: string; value: string; isRef: boolean }>;
+}
+
 // 5. Recursion Call Tree Node
 export interface RecursionTreeNode {
   id: string;
@@ -86,7 +99,15 @@ export function traceValToString(val: TraceValue | undefined, heap: Record<strin
   if (val.t === "p") return val.r;
   const obj = heap[val.id];
   if (!obj) return `#${val.id}`;
-  if (obj.kind === "list") return `[${obj.items.map((i) => traceValToString(i, heap)).join(", ")}]`;
+  if (obj.kind === "list" || obj.kind === "tuple" || obj.kind === "deque") {
+    return `[${obj.items.map((i) => traceValToString(i, heap)).join(", ")}]`;
+  }
+  if (obj.kind === "set" || obj.kind === "frozenset") {
+    return `{${obj.items.map((i) => traceValToString(i, heap)).join(", ")}}`;
+  }
+  if (obj.kind === "dict") {
+    return `{${obj.entries.map(([k, v]) => `${traceValToString(k, heap)}: ${traceValToString(v, heap)}`).join(", ")}}`;
+  }
   if (obj.kind === "object") return `${obj.cls} #${val.id}`;
   return `#${val.id}`;
 }
@@ -360,32 +381,100 @@ export function extractBinaryTrees(
 }
 
 /**
- * Detects and extracts Stacks from list objects named 'stack', 'st', etc.
+ * Detects and extracts Stacks / Queues / Priority Queues from deque objects or stack/queue-named lists.
  */
 export function extractStacks(
   step: TraceStep,
   heap: Record<string, HeapObject | null>
 ): DiagramStack[] {
   const stacks: DiagramStack[] = [];
+  const seenIds = new Set<string>();
 
   for (const frame of step.stack) {
     for (const [name, val] of frame.vars) {
-      if (
-        (name.toLowerCase().includes("stack") || name.toLowerCase() === "st") &&
-        val.t === "r"
-      ) {
-        const obj = heap[val.id];
-        if (obj && (obj.kind === "list" || obj.kind === "deque")) {
-          stacks.push({
-            name,
-            items: obj.items.map((it) => traceValToString(it, heap)),
-          });
-        }
+      if (val.t !== "r" || seenIds.has(val.id)) continue;
+      const obj = heap[val.id];
+      if (!obj) continue;
+      const lower = name.toLowerCase();
+      const isStackNamed =
+        lower.includes("stack") ||
+        lower === "st" ||
+        lower.includes("queue") ||
+        lower === "q" ||
+        lower.includes("deque") ||
+        lower === "pq" ||
+        lower.includes("heap");
+
+      if (obj.kind === "deque" || (obj.kind === "list" && isStackNamed)) {
+        seenIds.add(val.id);
+        stacks.push({
+          name,
+          items: obj.items.map((it) => traceValToString(it, heap)),
+        });
       }
     }
   }
 
   return stacks;
+}
+
+/**
+ * Extracts Maps/Dicts and Sets from the current execution step.
+ */
+export function extractDictsAndSets(
+  step: TraceStep,
+  heap: Record<string, HeapObject | null>
+): DiagramDictOrSet[] {
+  const out: DiagramDictOrSet[] = [];
+  const seenIds = new Set<string>();
+
+  for (const frame of step.stack) {
+    for (const [name, val] of frame.vars) {
+      if (val.t !== "r" || seenIds.has(val.id)) continue;
+      const obj = heap[val.id];
+      if (!obj) continue;
+      if (obj.kind === "dict") {
+        seenIds.add(val.id);
+        out.push({
+          name,
+          kind: "dict",
+          entries: obj.entries.map(([k, v]) => ({
+            key: traceValToString(k, heap),
+            value: traceValToString(v, heap),
+          })),
+          items: [],
+        });
+      } else if (obj.kind === "set" || obj.kind === "frozenset") {
+        seenIds.add(val.id);
+        out.push({
+          name,
+          kind: "set",
+          entries: [],
+          items: obj.items.map((it) => traceValToString(it, heap)),
+        });
+      }
+    }
+  }
+
+  return out;
+}
+
+/**
+ * Extracts all active call frames & local variable watches for universal step tracing.
+ */
+export function extractFrameWatches(
+  step: TraceStep,
+  heap: Record<string, HeapObject | null>
+): DiagramFrameWatch[] {
+  return step.stack.map((frame) => ({
+    name: frame.name || "main",
+    line: frame.line,
+    vars: frame.vars.map(([name, val]) => ({
+      name,
+      value: traceValToString(val, heap),
+      isRef: val.t === "r",
+    })),
+  }));
 }
 
 /**
