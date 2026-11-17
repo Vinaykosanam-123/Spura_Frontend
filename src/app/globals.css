@@ -300,8 +300,10 @@ html:not(.dark) .from-amber-400 * {
 
 /* Force all tinted badge/pill backgrounds to clean monochrome off-white with crisp black border */
 html:not(.dark) .bg-amber-500\/10,
+html:not(.dark) .bg-amber-500\/12,
 html:not(.dark) .bg-amber-500\/15,
 html:not(.dark) .bg-amber-500\/20,
+html:not(.dark) .bg-amber-500\/25,
 html:not(.dark) .bg-emerald-500\/10,
 html:not(.dark) .bg-emerald-500\/15,
 html:not(.dark) .bg-emerald-500\/20,
@@ -310,24 +312,37 @@ html:not(.dark) .bg-cyan-500\/15,
 html:not(.dark) .bg-indigo-500\/15,
 html:not(.dark) .bg-rose-500\/15,
 html:not(.dark) .bg-amber-50,
+html:not(.dark) .bg-amber-100,
 html:not(.dark) .bg-emerald-50,
+html:not(.dark) .bg-emerald-100,
 html:not(.dark) .bg-orange-50,
 html:not(.dark) .bg-teal-50,
 html:not(.dark) .bg-indigo-50,
-html:not(.dark) .bg-rose-50 {
+html:not(.dark) .bg-rose-50,
+html:not(.dark) .bg-red-100 {
   background-color: #F4F4F5 !important;
 }
 
+html:not(.dark) .border-amber-400,
+html:not(.dark) .border-amber-500,
 html:not(.dark) .border-amber-500\/25,
 html:not(.dark) .border-amber-500\/30,
 html:not(.dark) .border-amber-500\/40,
+html:not(.dark) .border-emerald-400,
+html:not(.dark) .border-emerald-500,
 html:not(.dark) .border-emerald-500\/30,
+html:not(.dark) .border-teal-400,
 html:not(.dark) .border-teal-500\/30,
 html:not(.dark) .border-rose-500\/30,
+html:not(.dark) .border-rose-500\/60,
 html:not(.dark) .border-indigo-500\/30,
 html:not(.dark) .border-amber-200,
 html:not(.dark) .border-emerald-200 {
-  border-color: rgba(0, 0, 0, 0.22) !important;
+  border-color: rgba(0, 0, 0, 0.35) !important;
+}
+
+html:not(.dark) .ring-amber-400 {
+  --tw-ring-color: #09090B !important;
 }
 
 /* Force all flashy/colored text utilities to pure ink black in light mode */
@@ -380,20 +395,51 @@ html:not(.dark) .text-stone-500 {
 }
 
 html:not(.dark) .shadow-black\/40,
+html:not(.dark) .shadow-amber-500\/10,
 html:not(.dark) .shadow-amber-500\/20,
 html:not(.dark) .shadow-amber-500\/25 {
   --tw-shadow-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Monochrome SVG Diagram Fills in Light Mode */
+html:not(.dark) .text-red-500,
+html:not(.dark) .text-red-700 {
+  color: #09090B !important;
+}
+
+/* Monochrome SVG Diagram Fills & Strokes in Light Mode */
 html:not(.dark) .fill-\[\#161B24\],
 html:not(.dark) .fill-emerald-950,
-html:not(.dark) .fill-orange-950 {
+html:not(.dark) .fill-orange-950,
+html:not(.dark) .fill-amber-500\/20 {
   fill: #E4E4E7 !important;
+}
+html:not(.dark) .fill-amber-400,
+html:not(.dark) .fill-emerald-500,
+html:not(.dark) .fill-rose-500 {
+  fill: #09090B !important;
+}
+html:not(.dark) .fill-stone-950 {
+  fill: #FFFFFF !important;
 }
 html:not(.dark) .fill-slate-100,
 html:not(.dark) .fill-slate-200 {
   fill: #09090B !important;
+}
+html:not(.dark) .stroke-amber-400,
+html:not(.dark) .stroke-amber-300,
+html:not(.dark) .stroke-emerald-400,
+html:not(.dark) .stroke-emerald-500,
+html:not(.dark) .stroke-rose-400,
+html:not(.dark) .stroke-orange-400 {
+  stroke: #09090B !important;
+}
+html:not(.dark) .stroke-slate-600,
+html:not(.dark) .stroke-slate-700,
+html:not(.dark) .stroke-emerald-400\/70 {
+  stroke: #71717A !important;
+}
+html:not(.dark) .bg-slate-600 {
+  background-color: #D4D4D8 !important;
 }
 
 /* Responsive Grids */
