@@ -100,88 +100,22 @@ const CUSTOM_PLAYGROUND_PROBLEM: Problem = {
   ],
   defaultStdin: "5\n1 3 5 7 9",
   templates: {
-    python: `def two_pointer_demo(nums, target):
-    left, right = 0, len(nums) - 1
-    while left < right:
-        s = nums[left] + nums[right]
-        if s == target:
-            return [left, right]
-        if s < target:
-            left += 1
-        else:
-            right -= 1
-    return [-1, -1]
-
-arr = [1, 3, 5, 7, 9]
-print("Indices:", two_pointer_demo(arr, 12))
-`,
-    javascript: `function twoPointerDemo(nums, target) {
-  let left = 0, right = nums.length - 1;
-  while (left < right) {
-    const sum = nums[left] + nums[right];
-    if (sum === target) return [left, right];
-    if (sum < target) left++;
-    else right--;
-  }
-  return [-1, -1];
-}
-
-const arr = [1, 3, 5, 7, 9];
-console.log("Indices:", twoPointerDemo(arr, 12));
-`,
-    cpp: `#include <iostream>
-#include <vector>
-using namespace std;
-
-vector<int> twoPointerDemo(vector<int>& nums, int target) {
-    int left = 0, right = (int)nums.size() - 1;
-    while (left < right) {
-        int sum = nums[left] + nums[right];
-        if (sum == target) return {left, right};
-        if (sum < target) left++;
-        else right--;
-    }
-    return {-1, -1};
-}
-
-int main() {
-    vector<int> nums = {1, 3, 5, 7, 9};
-    auto res = twoPointerDemo(nums, 12);
-    cout << "Indices: " << res[0] << " " << res[1] << endl;
-    return 0;
-}
-`,
-    java: `import java.util.*;
-
-public class Main {
-    public static int[] twoPointerDemo(int[] nums, int target) {
-        int left = 0, right = nums.length - 1;
-        while (left < right) {
-            int sum = nums[left] + nums[right];
-            if (sum == target) return new int[]{left, right};
-            if (sum < target) left++;
-            else right--;
-        }
-        return new int[]{-1, -1};
-    }
-
-    public static void main(String[] args) {
-        int[] nums = {1, 3, 5, 7, 9};
-        System.out.println("Indices: " + Arrays.toString(twoPointerDemo(nums, 12)));
-    }
-}
-`,
+    python: "",
+    javascript: "",
+    cpp: "",
+    java: "",
   },
 };
 
 const INITIAL_PROBLEMS: Problem[] = [...CURATED_PROBLEMS, CUSTOM_PLAYGROUND_PROBLEM];
 
-function buildDefaultTemplates(title: string): Problem["templates"] {
+function buildDefaultTemplates(_title: string): Problem["templates"] {
+  void _title;
   return {
-    python: `import sys\n\n# ${title}\ndef solve():\n    lines = [line.strip() for line in sys.stdin.read().splitlines() if line.strip()]\n    if not lines:\n        return\n    # Write your solution below\n    print(lines[0])\n\nif __name__ == "__main__":\n    solve()\n`,
-    javascript: `const fs = require("fs");\n\n// ${title}\nfunction solve() {\n  const lines = fs.readFileSync(0, "utf8").trim().split(/\\r?\\n/).filter(Boolean);\n  if (lines.length === 0) return;\n  // Write your solution below\n  console.log(lines[0]);\n}\n\nsolve();\n`,
-    cpp: `#include <iostream>\n#include <string>\n#include <vector>\nusing namespace std;\n\n// ${title}\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    string line;\n    if (getline(cin, line)) {\n        cout << line << "\\n";\n    }\n    return 0;\n}\n`,
-    java: `import java.util.*;\n\n// ${title}\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n        sc.close();\n    }\n}\n`,
+    python: "",
+    javascript: "",
+    cpp: "",
+    java: "",
   };
 }
 
@@ -222,7 +156,7 @@ function CodingWorkspace({
     return INITIAL_PROBLEMS[0];
   });
   const [language, setLanguage] = useState<EditorLanguage>("python");
-  const [code, setCode] = useState<string>(() => selectedProblem.templates.python);
+  const [code, setCode] = useState<string>("");
   const [stdin, setStdin] = useState<string>(() => selectedProblem.defaultStdin);
   const [showProblemList, setShowProblemList] = useState(false);
   const [problemSearch, setProblemSearch] = useState("");
@@ -396,7 +330,7 @@ function CodingWorkspace({
               const target = finalMerged.find((p) => p.slug === initialSlug || p.id === initialSlug || p.dbId === initialSlug);
               if (target) {
                 setSelectedProblem(target);
-                setCode(target.templates.python);
+                setCode("");
                 setStdin(target.defaultStdin);
                 void hydrateProblemFromDb(target);
               }
@@ -418,7 +352,7 @@ function CodingWorkspace({
   // When problem changes
   const handleProblemChange = (prob: Problem) => {
     setSelectedProblem(prob);
-    setCode(prob.templates[language]);
+    setCode("");
     setStdin(prob.defaultStdin);
     setTraceResult(null);
     setDiagramNotice("");
@@ -437,7 +371,7 @@ function CodingWorkspace({
   // When language changes
   const handleLanguageChange = (lang: EditorLanguage) => {
     setLanguage(lang);
-    setCode(selectedProblem.templates[lang]);
+    setCode("");
     setTraceResult(null);
     setDiagramNotice("");
     setCurrentStepIndex(0);
@@ -514,6 +448,11 @@ function CodingWorkspace({
   };
 
   const runTraceForLanguage = async (lang: EditorLanguage, source: string) => {
+    if (!source.trim()) {
+      setActiveLeftTab("diagram");
+      setDiagramNotice("Write your code in the editor first, then click Animate Diagram.");
+      return;
+    }
     setDiagramNotice("");
     setIsPlaying(false);
     setIsTracing(true);
@@ -559,6 +498,14 @@ function CodingWorkspace({
 
   // Normal Fast Run
   const handleFastRun = async () => {
+    if (!code.trim()) {
+      setShowConsole(true);
+      setConsoleTab("result");
+      setOutputStdout("");
+      setOutputStderr("Write your code in the editor first.");
+      setRunVerdict("Empty");
+      return;
+    }
     setIsRunning(true);
     setShowConsole(true);
     setConsoleTab("result");
@@ -1673,8 +1620,8 @@ function CodingWorkspace({
               </select>
 
               <button
-                onClick={() => setCode(selectedProblem.templates[language])}
-                title="Reset starter template"
+                onClick={() => setCode("")}
+                title="Clear editor"
                 style={{
                   backgroundColor: "transparent",
                   color: "var(--text-muted)",
@@ -1686,7 +1633,7 @@ function CodingWorkspace({
                 }}
               >
                 <span>↺</span>
-                <span>Reset</span>
+                <span>Clear</span>
               </button>
             </div>
 

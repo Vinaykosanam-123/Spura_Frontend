@@ -34,62 +34,12 @@ type Analysis = {
   betterApproach: { title: string; timeComplexity: string; spaceComplexity: string; hint: string } | null;
 };
 
-const BOILERPLATES: Record<string, string> = {
-  python: `import sys
-
-def solve():
-    data = sys.stdin.read().strip().split()
-    if not data:
-        return
-    # TODO: implement solution
-    print(data[0])
-
-if __name__ == "__main__":
-    solve()
-`,
-  javascript: `const fs = require('fs');
-const data = fs.readFileSync(0, 'utf8').trim().split(/\\s+/);
-function solve() {
-  if (!data[0]) return;
-  // TODO: implement solution
-  console.log(data[0]);
-}
-solve();
-`,
-  java: `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        // TODO: implement solution
-        while (sc.hasNext()) {
-            System.out.println(sc.next());
-            break;
-        }
-        sc.close();
-    }
-}
-`,
-  cpp: `#include <bits/stdc++.h>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    // TODO: implement solution
-    string s;
-    if (cin >> s) cout << s;
-    return 0;
-}
-`,
-};
-
 export default function PracticePage() {
   const { questionId } = useParams<{ questionId: string }>();
   const [question, setQuestion] = useState<Record<string, unknown> | null>(null);
   const [samples, setSamples] = useState<Sample[]>([]);
   const [language, setLanguage] = useState('python');
-  const [code, setCode] = useState(BOILERPLATES.python);
+  const [code, setCode] = useState('');
   const [running, setRunning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [runResults, setRunResults] = useState<RunResult[]>([]);
@@ -268,15 +218,9 @@ export default function PracticePage() {
 
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
-    setCode((prev) => {
-      if (!prev.trim() || Object.values(BOILERPLATES).includes(prev)) {
-        return BOILERPLATES[lang] ?? '';
-      }
-      return prev;
-    });
   };
 
-  const resetBoilerplate = () => setCode(BOILERPLATES[language] ?? '');
+  const clearCode = () => setCode('');
 
   return (
     <main className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 py-6">
@@ -381,10 +325,10 @@ export default function PracticePage() {
             </select>
             <button
               type="button"
-              onClick={resetBoilerplate}
+              onClick={clearCode}
               className="text-xs px-3 py-2 rounded-xl border border-stone-300 dark:border-white/10 text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-white/5"
             >
-              Reset template
+              Clear
             </button>
             <div className="flex-1" />
             <button
