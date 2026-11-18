@@ -121,7 +121,32 @@ function detectJavaMainClass(code: string): string {
   return anyClass?.[1] || "Main";
 }
 
+function isLocalCompileAllowed(): boolean {
+  // Unconditionally disabled in production — untrusted student code must never
+  // compile or execute directly inside the Next.js container.
+  if (process.env.NODE_ENV === "production") {
+    return false;
+  }
+  return process.env.ALLOW_UNSAFE_LOCAL_COMPILE === "true";
+}
+
 export async function POST(req: Request) {
+  if (!isLocalCompileAllowed()) {
+    return NextResponse.json(
+      {
+        stdout: "",
+        steps: [],
+        truncated: false,
+        error: {
+          code: "LOCAL_COMPILE_DISABLED",
+          message:
+            "Direct compilation inside the frontend container is disabled. Use the isolated Practice judge API or set ALLOW_UNSAFE_LOCAL_COMPILE=true in local development only.",
+        },
+      },
+      { status: 403 }
+    );
+  }
+
   let workDir: string | null = null;
   try {
     const body = (await req.json()) as {

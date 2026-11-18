@@ -16,9 +16,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_DEV_BYPASS=false
-
-# Install G++ (C++20) and OpenJDK 21 so /api/compile works in /coding
-RUN apk add --no-cache g++ musl-dev openjdk21-jdk
+ENV ALLOW_UNSAFE_LOCAL_COMPILE=false
 
 RUN addgroup -S spura && adduser -S spura -G spura
 
