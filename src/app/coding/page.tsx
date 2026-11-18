@@ -8,6 +8,11 @@ import { executeAndTrace } from "@/lib/trace/runner";
 import type { TraceResult } from "@/lib/trace/types";
 import { VISUAL_LANGUAGES } from "@/lib/trace/types";
 import { recordActivity } from "@/lib/activity";
+import {
+  generateIdempotencyKey,
+  isInfraOrFailedSubmission,
+  pollSubmissionUntilTerminal,
+} from "@/lib/submission-poll";
 import { StepDiagramViewer } from "@/components/diagrams/StepDiagramViewer";
 
 type EditorLanguage = "python" | "javascript" | "cpp" | "java";
@@ -227,6 +232,13 @@ function CodingWorkspace({
   // Editor ref
   const editorRef = useRef<MonacoEditorHandle | null>(null);
   const decorationsRef = useRef<string[]>([]);
+  const submitPollAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      submitPollAbortRef.current?.abort();
+    };
+  }, []);
 
   // Hydrate full problem statement/samples from PostgreSQL if not yet loaded
   const hydrateProblemFromDb = async (prob: Problem) => {
@@ -366,6 +378,8 @@ function CodingWorkspace({
 
   // When problem changes
   const handleProblemChange = (prob: Problem) => {
+    submitPollAbortRef.current?.abort();
+    setIsSubmitting(false);
     setSelectedProblem(prob);
     setCode("");
     setStdin(prob.defaultStdin);
@@ -553,6 +567,19 @@ function CodingWorkspace({
       return;
     }
 
+    if (!code.trim()) {
+      setShowConsole(true);
+      setConsoleTab("result");
+      setOutputStdout("");
+      setOutputStderr("Write your code in the editor first.");
+      setRunVerdict("Empty");
+      return;
+    }
+
+    submitPollAbortRef.current?.abort();
+    const abortController = new AbortController();
+    submitPollAbortRef.current = abortController;
+
     setIsSubmitting(true);
     setShowConsole(true);
     setConsoleTab("result");
@@ -561,11 +588,16 @@ function CodingWorkspace({
     setRunVerdict("Queued");
 
     try {
+      const idempotencyKey = generateIdempotencyKey();
       const res = await fetch(`/api/v1/me/questions/${encodeURIComponent(dbQuestionId)}/submit`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKey,
+        },
         body: JSON.stringify({ language, sourceCode: code }),
+        signal: abortController.signal,
       });
 
       if (!res.ok) {
@@ -583,40 +615,77 @@ function CodingWorkspace({
       const subId: string | undefined = subInit?.submission?.id;
       if (!subId) throw new Error("No submission ID returned");
 
-      let finalSub: DbSubmissionItem & { testsPassed?: number; testsTotal?: number } = subInit.submission;
-      for (let attempt = 0; attempt < 30; attempt++) {
-        await new Promise((r) => setTimeout(r, 500));
-        const pollRes = await fetch(`/api/v1/me/submissions/${encodeURIComponent(subId)}`, {
-          credentials: "include",
-        });
-        if (!pollRes.ok) break;
-        const pollData = await pollRes.json();
-        if (pollData?.submission) {
-          finalSub = pollData.submission;
-          if (finalSub.status === "completed" || finalSub.status === "failed") {
-            break;
+      type PolledSub = DbSubmissionItem & { testsPassed?: number; testsTotal?: number };
+      const pollOutcome = await pollSubmissionUntilTerminal<PolledSub>(
+        subInit.submission as PolledSub,
+        async (pollSignal) => {
+          const pollRes = await fetch(`/api/v1/me/submissions/${encodeURIComponent(subId)}`, {
+            credentials: "include",
+            signal: pollSignal,
+          });
+          if (pollRes.status === 401 || pollRes.status === 403) {
+            return { submission: null, unauthorized: true };
           }
+          if (!pollRes.ok) {
+            return { submission: null };
+          }
+          const pollData = await pollRes.json();
+          return { submission: (pollData?.submission as PolledSub) ?? null };
+        },
+        {
+          signal: abortController.signal,
+          onUpdate: (latest) => {
+            if (latest.status === "running") {
+              setRunVerdict("Running");
+              setOutputStdout("Judging your solution against sample + hidden test cases...");
+            }
+          },
         }
+      );
+
+      if (pollOutcome.aborted) {
+        return;
+      }
+      if (pollOutcome.unauthorized) {
+        setOutputStdout("");
+        setOutputStderr("Your session expired while checking submission status. Sign in again to view results.");
+        setRunVerdict("Auth Required");
+        return;
       }
 
-      const verdictRaw = finalSub.verdict || finalSub.status || "completed";
-      const verdictPretty = verdictRaw
-        .split("_")
-        .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
-        .join(" ");
-      setRunVerdict(verdictPretty);
-      setExecutionTimeMs(finalSub.runtimeMs ?? null);
+      const finalSub = pollOutcome.submission;
+      if (pollOutcome.timedOut) {
+        setRunVerdict("Queued");
+        setOutputStdout("Submission is still in the grading queue. Check the Submissions tab shortly for the final verdict.");
+        return;
+      }
 
-      const passedInfo =
-        finalSub.testsPassed != null && finalSub.testsTotal != null
-          ? `Tests Passed: ${finalSub.testsPassed} / ${finalSub.testsTotal}\n`
-          : "";
-      const scoreInfo = finalSub.score != null ? `Score: ${finalSub.score}%\n` : "";
-      setOutputStdout(`${passedInfo}${scoreInfo}Verdict: ${verdictPretty}`);
-      recordRun(language, verdictPretty, 0, finalSub.runtimeMs ?? null);
+      if (isInfraOrFailedSubmission(finalSub.status)) {
+        setRunVerdict("Execution Unavailable");
+        setExecutionTimeMs(finalSub.runtimeMs ?? null);
+        setOutputStdout("");
+        setOutputStderr("Execution unavailable — please resubmit your solution.");
+        recordRun(language, "Infra Failed", 0, finalSub.runtimeMs ?? null);
+      } else {
+        const verdictRaw = finalSub.verdict || finalSub.status || "completed";
+        const verdictPretty = verdictRaw
+          .split("_")
+          .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+          .join(" ");
+        setRunVerdict(verdictPretty);
+        setExecutionTimeMs(finalSub.runtimeMs ?? null);
 
-      if (verdictRaw === "accepted") {
-        recordActivity({ solves: 1 });
+        const passedInfo =
+          finalSub.testsPassed != null && finalSub.testsTotal != null
+            ? `Tests Passed: ${finalSub.testsPassed} / ${finalSub.testsTotal}\n`
+            : "";
+        const scoreInfo = finalSub.score != null ? `Score: ${finalSub.score}%\n` : "";
+        setOutputStdout(`${passedInfo}${scoreInfo}Verdict: ${verdictPretty}`);
+        recordRun(language, verdictPretty, 0, finalSub.runtimeMs ?? null);
+
+        if (finalSub.status === "completed" && verdictRaw === "accepted") {
+          recordActivity({ solves: 1 });
+        }
       }
 
       const listRes = await fetch("/api/v1/me/submissions", { credentials: "include" });

@@ -5,6 +5,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api, type ApiError } from '@/lib/api';
 import { recordActivity } from '@/lib/activity';
+import {
+  generateIdempotencyKey,
+  isInfraOrFailedSubmission,
+  isTerminalSubmissionStatus,
+  pollSubmissionUntilTerminal,
+} from '@/lib/submission-poll';
 import { executeAndTrace } from '@/lib/trace/runner';
 import { VISUAL_LANGUAGES, type TraceResult, type VisualLanguage } from '@/lib/trace/types';
 import { StepDiagramViewer } from '@/components/diagrams/StepDiagramViewer';
@@ -62,11 +68,9 @@ export default function PracticePage() {
   const [showDiagram, setShowDiagram] = useState(false);
   const router = useRouter();
   const [pollTimeout, setPollTimeout] = useState(false);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollAbortRef = useRef<AbortController | null>(null);
   const playTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pollCountRef = useRef(0);
   const resultRef = useRef<HTMLDivElement | null>(null);
-  const MAX_POLLS = 50;
 
   const passedCount = runResults.filter((r) => r.passed).length;
   const totalTraceSteps = traceResult?.steps?.length || 0;
@@ -114,16 +118,9 @@ export default function PracticePage() {
 
   useEffect(() => {
     return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
+      pollAbortRef.current?.abort();
     };
   }, []);
-
-  useEffect(() => {
-    if (pollTimeout && pollRef.current) {
-      clearInterval(pollRef.current);
-      pollRef.current = null;
-    }
-  }, [pollTimeout]);
 
   const handleRun = useCallback(async () => {
     setError('');
@@ -158,39 +155,52 @@ export default function PracticePage() {
     setError('');
     setSubmitting(true);
     setSubmission(null);
+    setPollTimeout(false);
+    pollAbortRef.current?.abort();
+    const abortController = new AbortController();
+    pollAbortRef.current = abortController;
+
     try {
-      const key = crypto.randomUUID();
+      const key = generateIdempotencyKey();
       const data = await api.submitQuestion(questionId, { language, sourceCode: code }, key);
       const sub = data.submission as Submission;
       setSubmission(sub);
+      setSubmitting(false);
 
-      if (pollRef.current) clearInterval(pollRef.current);
-      pollCountRef.current = 0;
-      setPollTimeout(false);
-      pollRef.current = setInterval(async () => {
-        pollCountRef.current += 1;
-        if (pollCountRef.current >= MAX_POLLS) {
-          setPollTimeout(true);
-          return;
-        }
-        try {
-          const detail = await api.submissionDetail(sub.id);
-          const s = detail.submission as Submission;
-          setSubmission(s);
-          const isTerminal =
-            s.status === 'completed' || s.status === 'infra_failed' || s.status === 'failed';
-          if (isTerminal) {
-            if (s.status === 'completed' && s.verdict === 'accepted') recordActivity({ solves: 1 });
-            if (pollRef.current) clearInterval(pollRef.current);
+      const pollOutcome = await pollSubmissionUntilTerminal<Submission>(
+        sub,
+        async () => {
+          try {
+            const detail = await api.submissionDetail(sub.id);
+            return { submission: detail.submission as Submission };
+          } catch (e: unknown) {
+            if ((e as ApiError)?.status === 401) {
+              return { submission: null, unauthorized: true };
+            }
+            return { submission: null };
           }
-        } catch (e: unknown) {
-          if ((e as ApiError)?.status === 401) {
-            if (pollRef.current) clearInterval(pollRef.current);
-            router.push('/login');
-          }
-          // otherwise keep polling
+        },
+        {
+          signal: abortController.signal,
+          onUpdate: (latest) => setSubmission(latest),
         }
-      }, 2000);
+      );
+
+      if (pollOutcome.aborted) return;
+      if (pollOutcome.unauthorized) {
+        router.push('/login');
+        return;
+      }
+      if (pollOutcome.timedOut) {
+        setPollTimeout(true);
+        return;
+      }
+      if (
+        pollOutcome.submission.status === 'completed' &&
+        pollOutcome.submission.verdict === 'accepted'
+      ) {
+        recordActivity({ solves: 1 });
+      }
     } catch (e: unknown) {
       const err = e as ApiError;
       if (err?.status === 401) { router.push('/login'); return; }
@@ -431,10 +441,7 @@ export default function PracticePage() {
               <span aria-hidden>✓</span>
               {submitting
                 ? 'Submitting…'
-                : submission &&
-                    submission.status !== 'completed' &&
-                    submission.status !== 'infra_failed' &&
-                    submission.status !== 'failed'
+                : submission && !isTerminalSubmissionStatus(submission.status)
                   ? 'Judging…'
                   : 'Submit'}
             </button>
@@ -519,27 +526,23 @@ export default function PracticePage() {
                 <div className="flex items-center gap-3">
                   <span
                     className={`flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold ${
-                      submission.status !== 'completed' &&
-                      submission.status !== 'infra_failed' &&
-                      submission.status !== 'failed'
+                      !isTerminalSubmissionStatus(submission.status)
                         ? 'animate-pulse bg-amber-500 text-stone-950'
-                        : submission.verdict === 'accepted'
+                        : submission.status === 'completed' && submission.verdict === 'accepted'
                           ? 'bg-emerald-500 text-stone-950'
                           : 'bg-rose-500 text-white'
                     }`}
                     aria-hidden
                   >
-                    {submission.status !== 'completed' &&
-                    submission.status !== 'infra_failed' &&
-                    submission.status !== 'failed'
+                    {!isTerminalSubmissionStatus(submission.status)
                       ? '…'
-                      : submission.verdict === 'accepted'
+                      : submission.status === 'completed' && submission.verdict === 'accepted'
                         ? '✓'
                         : '✗'}
                   </span>
                   <div>
                     <p className="text-base font-semibold text-stone-900 dark:text-stone-50">
-                      {submission.status === 'infra_failed' || submission.status === 'failed'
+                      {isInfraOrFailedSubmission(submission.status)
                         ? 'Execution unavailable — please resubmit'
                         : submission.status !== 'completed'
                           ? 'Judging your solution…'
@@ -555,10 +558,7 @@ export default function PracticePage() {
                     </p>
                   </div>
                 </div>
-                {pollTimeout &&
-                  submission.status !== 'completed' &&
-                  submission.status !== 'infra_failed' &&
-                  submission.status !== 'failed' && (
+                {pollTimeout && !isTerminalSubmissionStatus(submission.status) && (
                     <p className="mt-3 text-xs text-stone-500 dark:text-stone-400">
                       Taking longer than usual — keep waiting or resubmit.
                     </p>
