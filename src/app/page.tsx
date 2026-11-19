@@ -212,7 +212,7 @@ export default function Home() {
   const [activeModule, setActiveModule] = useState<string>("mod-1");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [demoStep, setDemoStep] = useState<number>(2);
-  const [primaryPriceLabel, setPrimaryPriceLabel] = useState<string>("");
+  const [primaryPriceLabel, setPrimaryPriceLabel] = useState<string>("₹2,399");
   const [primaryCourseHref, setPrimaryCourseHref] = useState<string>("/courses");
   const [primaryCourseTitle, setPrimaryCourseTitle] = useState<string>("Complete Placement Preparation Batch 2.0");
 
@@ -314,7 +314,7 @@ export default function Home() {
           LIVE
         </span>
         <span>
-          Batch 2.0 Admissions Open: 100+ Live Classes • Telugu &amp; English • 2-Year Replay{primaryPriceLabel ? ` • Starting at ${primaryPriceLabel}` : ""}
+          Batch 2.0 Admissions Open: 100+ Live Classes • Telugu &amp; English • 2-Year Replay • Early Bird at {primaryPriceLabel}
         </span>
         <a
           href="#batch-2"
@@ -423,10 +423,10 @@ export default function Home() {
             }}
           >
             <span style={{ color: "var(--accent-emerald)", fontWeight: 700 }}>
-              ✓ Admissions Open{primaryPriceLabel ? `: ${primaryPriceLabel}` : ""}
+              ✓ Early Bird Offer: {primaryPriceLabel}
             </span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
-            <span style={{ color: "var(--text-secondary)" }}>Live Classes + Compiler</span>
+            <span style={{ color: "var(--text-secondary)", textDecoration: "line-through" }}>₹5,999 (60% Off)</span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
             <span style={{ color: "var(--accent-amber)", fontWeight: 600 }}>480+ Company Questions</span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
@@ -1225,72 +1225,86 @@ export default function Home() {
             overflow: "hidden",
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: "0",
-              right: "0",
-              backgroundColor: "var(--brand-primary)",
-              color: "var(--brand-on-primary)",
-              fontSize: "0.75rem",
-              fontWeight: 800,
-              padding: "6px 20px",
-              borderBottomLeftRadius: "8px",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Admissions Open
-          </div>
+            <div
+              style={{
+                position: "absolute",
+                top: "0",
+                right: "0",
+                backgroundColor: "var(--brand-primary)",
+                color: "var(--brand-on-primary)",
+                fontSize: "0.75rem",
+                fontWeight: 800,
+                padding: "6px 20px",
+                borderBottomLeftRadius: "8px",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Early Bird Active
+            </div>
 
-          <div className="responsive-grid-2col" style={{ alignItems: "center" }}>
-            <div>
-              <span
-                style={{
-                  fontSize: "0.8rem",
-                  fontWeight: 700,
-                  color: "var(--brand-primary)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                {primaryCourseTitle}
-              </span>
+            <div className="responsive-grid-2col" style={{ alignItems: "center" }}>
+              <div>
+                <span
+                  style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
+                    color: "var(--brand-primary)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {primaryCourseTitle}
+                </span>
 
-              {primaryPriceLabel && (
-                <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginTop: "0.5rem", marginBottom: "0.75rem" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginTop: "0.5rem", marginBottom: "0.75rem", flexWrap: "wrap" }}>
                   <span style={{ fontSize: "clamp(2.4rem, 5vw, 3.5rem)", fontWeight: 900, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>
                     {primaryPriceLabel}
                   </span>
+                  <span style={{ fontSize: "1.25rem", color: "var(--text-muted)", textDecoration: "line-through" }}>
+                    ₹5,999
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "0.85rem",
+                      fontWeight: 700,
+                      color: "var(--accent-emerald)",
+                      backgroundColor: "var(--bg-surface-elevated)",
+                      border: "1px solid var(--border-strong)",
+                      padding: "3px 8px",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    60% OFF
+                  </span>
                 </div>
-              )}
 
-              <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1.75rem", lineHeight: 1.5, marginTop: "0.75rem" }}>
-                One-time enrollment grants immediate access to all live classes, 2-year HD recordings, the 480+ company problem sheet, contests, and visual compiler tools.
-              </div>
+                <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1.75rem", lineHeight: 1.5, marginTop: "0.75rem" }}>
+                  Flexible monthly installment option available at <strong>₹749/month</strong>. One-time enrollment grants immediate access to all live classes, 2-year HD recordings, the 480+ company problem sheet, contests, and visual compiler tools.
+                </div>
 
-              <Link
-                href={primaryCourseHref}
-                className="glow-btn"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem",
-                  width: "100%",
-                  padding: "1rem",
-                  background: "var(--brand-gradient)",
-                  color: "var(--brand-on-primary)",
-                  borderRadius: "var(--radius-sm)",
-                  fontWeight: 800,
-                  fontSize: "1.08rem",
-                  boxShadow: "var(--brand-glow)",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                <span>🔥</span>
-                <span>Enroll Now{primaryPriceLabel ? ` — ${primaryPriceLabel}` : ""}</span>
-              </Link>
+                <Link
+                  href={primaryCourseHref}
+                  className="glow-btn"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                    width: "100%",
+                    padding: "1rem",
+                    background: "var(--brand-gradient)",
+                    color: "var(--brand-on-primary)",
+                    borderRadius: "var(--radius-sm)",
+                    fontWeight: 800,
+                    fontSize: "1.08rem",
+                    boxShadow: "var(--brand-glow)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  <span>🔥</span>
+                  <span>Enroll in Batch 2.0 Now — {primaryPriceLabel}</span>
+                </Link>
 
               <div style={{ textAlign: "center", fontSize: "0.75rem", color: "var(--text-muted)" }}>
                 🔒 100% Secure Payment • Instant Batch Confirmation • UPI / Cards / NetBanking
